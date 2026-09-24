@@ -1,19 +1,24 @@
 from __future__ import annotations
 
-def draft_summary(m: dict, pattern: str, desc: str, p: float, actions: list[dict], reply: dict | None) -> str:
+def draft_summary(m: dict, pattern: str, desc: str, p: float, actions: list[dict], reply: dict | None) -> list[dict]:
+    """Sentences the control gate can check. Each one cites one evidence ref."""
     flagged = m["flagged"]
     names = ", ".join(a["action"] for a in actions)
     lead = (
         f"Case {m['case']['case_id']} on card {m['case']['card_id']}: "
         f"${flagged[2]:.2f} {flagged[4].replace('_', ' ')} at {flagged[1]}."
     )
-    middle = f" {desc} Fraud probability is {p:.2f}."
-    ask = ""
+    middle = f"{desc} Fraud probability is {p:.2f}."
+    sentences = [
+        {"text": lead, "ref": "query:card_history", "claim": lead},
+        {"text": middle, "ref": "query:pattern_window", "claim": desc or lead},
+    ]
     if reply:
-        ask = f" We assumed: {reply['assumption']}."
-    tail = f" Final actions: {names}."
-    text = (lead + middle + ask + tail).strip()
-    return text
+        assumed = f"We assumed: {reply['assumption']}."
+        sentences.append({"text": assumed, "ref": "reply:assumption", "claim": reply["assumption"]})
+    tail = f"Final actions: {names}."
+    sentences.append({"text": tail, "ref": "policy:final_actions", "claim": tail})
+    return sentences
 
 
 def draft_sar(m: dict, actions: list[dict], desc: str, exposure: float, txn_ids: list[str]) -> dict:
@@ -34,15 +39,20 @@ def draft_sar(m: dict, actions: list[dict], desc: str, exposure: float, txn_ids:
         narrative += f"The device profile is {m['profile']}. "
     if m["connected"]:
         narrative += f"The same profile appears on cards {', '.join(m['connected'][:4])}. "
-    narrative += (
-        f"Suspicious amount on the affected transactions is ${exposure:.2f}. "
-        "The report is filed because the final action list includes FILE_REPORT. "
-        "Closed cases guided the search and are not treated as proof by themselves."
-    )
+    amount = f"Suspicious amount on the affected transactions is ${exposure:.2f}."
+    filed = "The report is filed because the final action list includes FILE_REPORT."
+    memory = "Closed cases guided the search and are not treated as proof by themselves."
+    sentences = [
+        {"text": narrative.strip(), "ref": "query:card_history", "claim": narrative.strip()},
+        {"text": amount, "ref": "query:pattern_window", "claim": amount},
+        {"text": filed, "ref": "policy:final_actions", "claim": filed},
+        {"text": memory, "ref": "query:prior_cases", "claim": memory},
+    ]
     return {
         "file": True,
         "reason": next(a["reason"] for a in actions if a["action"] == "FILE_REPORT"),
-        "narrative": narrative,
+        "narrative": " ".join(item["text"] for item in sentences),
+        "sentences": sentences,
         "subjects": subjects,
         "total_amount_usd": exposure,
         "activity_dates": [dates[0], dates[-1]] if dates else [],

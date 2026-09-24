@@ -10,8 +10,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 
 from graph import load_index
-from harness import run
-from memory import write_and_read
+from harness import resume, run
 
 
 def _repo() -> Path:
@@ -79,13 +78,10 @@ def run_case(case_id: str):
     started = time.perf_counter()
     result = run(case, idx)
     result["answer"]["latency_s"] = round(time.perf_counter() - started, 3)
-    if not write_and_read(case_id, result["answer"]):
+    if result["demo"].get("memory_matched") is False:
         raise HTTPException(500, "case memory read-back did not match the write")
-    result["answer"]["written_to_graph"] = False
-    result["demo"]["memory_readback"] = True
-    CASES.mkdir(parents=True, exist_ok=True)
-    (CASES / f"{result['answer']['case_id']}.json").write_text(json.dumps(result["answer"], indent=2))
-    result["demo"]["approved"] = []
+    result["demo"].setdefault("approved", [])
+    _write_case(result)
     RUNS[case_id] = result
     return result
 
@@ -97,23 +93,26 @@ def get_case(case_id: str):
     return RUNS[case_id]
 
 
+def _write_case(result: dict) -> None:
+    CASES.mkdir(parents=True, exist_ok=True)
+    (CASES / f"{result['answer']['case_id']}.json").write_text(json.dumps(result["answer"], indent=2))
+
+
 @app.post("/api/cases/{case_id}/approve")
 async def approve(case_id: str, request: Request):
     body = await request.json()
-    ran = RUNS.get(case_id)
-    if not ran:
-        raise HTTPException(404, "not run yet")
     action = body.get("action")
-    final = ran["answer"]["next_best_actions"]["final"]
-    match = next((a for a in final if a["action"] == action and a["route"] != "auto"), None)
-    if not match:
-        raise HTTPException(400, "that action is not waiting for approval")
-    ran["demo"].setdefault("approved", [])
-    if action not in ran["demo"]["approved"]:
-        ran["demo"]["approved"].append(action)
-    waiting = [a["action"] for a in final if a["route"] != "auto"]
-    ran["demo"]["approval"] = "approved" if set(waiting) <= set(ran["demo"]["approved"]) else "pending"
-    return {"approved": ran["demo"]["approved"], "approval": ran["demo"]["approval"]}
+    try:
+        result = resume(case_id, graph_index(), action=action)
+    except KeyError:
+        raise HTTPException(404, "not run yet") from None
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from None
+    if result["demo"].get("memory_matched") is False:
+        raise HTTPException(500, "case memory read-back did not match the write")
+    _write_case(result)
+    RUNS[case_id] = result
+    return {"approved": result["demo"].get("approved") or [], "approval": result["demo"]["approval"]}
 
 
 @app.get("/")

@@ -44,6 +44,13 @@ def believe(m: dict, prior: float | None) -> tuple[float, list[dict], bool]:
             fraud_bits += 1
         else:
             legit_bits += 1
+    rate = m.get("memory_rate")
+    memory_n = m.get("memory_n") or 0
+    if rate is not None and memory_n >= 3:
+        rate = min(max(float(rate), 1e-4), 1 - 1e-4)
+        delta = max(-0.6, min(0.6, _logit(rate) - _logit(p0)))
+        odds += delta
+        steps.append({"name": "prior from memory", "delta": round(delta, 4), "p": round(_sigmoid(odds), 4)})
     if m["reply"] == "deny":
         odds += 1.4
         steps.append({"name": "customer denies the purchase", "delta": 1.4, "p": round(_sigmoid(odds), 4)})

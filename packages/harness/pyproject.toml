@@ -2,7 +2,7 @@
 name = "harness"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = ["contracts", "intake", "graph", "belief", "pattern", "policy", "reply", "stop", "language", "answer"]
+dependencies = ["contracts", "intake", "graph", "belief", "pattern", "control", "policy", "reply", "stop", "language", "memory", "answer"]
 
 [build-system]
 requires = ["hatchling"]

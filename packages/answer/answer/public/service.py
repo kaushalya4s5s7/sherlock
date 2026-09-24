@@ -80,6 +80,29 @@ def _evidence(m: dict, pattern: str, desc: str) -> list[dict]:
                 "entity_ids": [sim["case_id"]],
             }
         )
+    if m.get("memory_rate") is not None:
+        claims.append(
+            {
+                "claim": (
+                    f"Closed cases on this device confirm at {float(m['memory_rate']):.0%} "
+                    f"across {m.get('memory_n', 0)} cases. This is a prior from memory, not proof for this purchase."
+                ),
+                "source": "graph",
+                "ref": "query:component_cards",
+                "entity_ids": [sim["case_id"] for sim in m["similar"][:3]],
+            }
+        )
+    for hop in m.get("hops") or []:
+        if not hop.get("claim"):
+            continue
+        claims.append(
+            {
+                "claim": hop["claim"],
+                "source": hop.get("source") or "graph",
+                "ref": hop.get("ref") or "query:second_hop",
+                "entity_ids": hop.get("entity_ids") or [],
+            }
+        )
     return claims
 
 
@@ -122,6 +145,7 @@ def build(
     summary: str,
     sar: dict,
     counterfactuals: list,
+    written_to_graph: bool = False,
 ) -> dict:
     m = measured
     affected = _affected(m, pattern)
@@ -163,7 +187,7 @@ def build(
             "evidence": claims,
             "similar_prior_cases": [s["case_id"] for s in m["similar"]],
             "summary": summary,
-            "written_to_graph": False,
+            "written_to_graph": bool(written_to_graph),
             "graph_case_id": f"EXAM-{case['case_id']}",
         },
         "evidence_requests": evidence_requests,
