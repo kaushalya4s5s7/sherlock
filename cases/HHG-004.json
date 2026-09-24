@@ -179,5 +179,5 @@
   "stop_reason": "Further lookups would not change the action list. Control gates used the deterministic fallback. The summary used the evidence claims because the language-model key was not used. Drop the device evidence and the action list changes. That family is the point of commitment.",
   "tool_calls": 9,
   "tokens": 0,
-  "latency_s": 0.062
+  "latency_s": 0.071
 }

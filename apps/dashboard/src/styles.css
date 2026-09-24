@@ -66,7 +66,7 @@ h1, h2, h3, p { margin: 0; }
 .hold { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .composer { background: var(--sheet); border-top: 1px solid var(--line); padding: 12px 20px 16px; }
 .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-.suggestions button { background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; }
+.suggestions button { background: white; color: var(--ink); border: 1px solid #c9d3dc; border-radius: 999px; padding: 6px 10px; }
 .composer-row { display: flex; gap: 8px; }
 .composer-row input { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--bg); }
 .composer button:disabled, .hold button:disabled { opacity: 0.55; }
