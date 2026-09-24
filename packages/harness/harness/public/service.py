@@ -329,21 +329,25 @@ def _step_prose(state: dict, allow_fallback: bool) -> None:
     if state["fallback"]:
         stop_text += " Control gates used the deterministic fallback."
     point = _commitment(measured, pattern, [a["action"] for a in final])
-    summary, rewrite_used, summary_fallback = _ground(
-        draft_summary(measured, pattern, desc, state["p2"], final, reply),
-        state["rewrite_used"],
-        allow_fallback,
-    )
+    drafted = draft_summary(measured, pattern, desc, state["p2"], final, reply, allow_fallback=allow_fallback)
+    summary, rewrite_used, summary_fallback = _ground(drafted["sentences"], state["rewrite_used"], allow_fallback)
     state["rewrite_used"] = rewrite_used
     state["fallback"] = state["fallback"] or summary_fallback
+    state["tokens"] = int(drafted.get("tokens") or 0)
+    language_fallback = bool(drafted["fallback"])
     exposure_for_sar = round(abs(measured["flagged"][2]), 2)
-    sar = draft_sar(measured, final, desc, exposure_for_sar, [])
+    sar = draft_sar(measured, final, desc, exposure_for_sar, [], allow_fallback=allow_fallback)
+    state["tokens"] += int(sar.get("tokens") or 0)
+    language_fallback = language_fallback or bool(sar.get("fallback"))
     if sar.get("sentences"):
         narrative, rewrite_used, sar_fallback = _ground(sar["sentences"], state["rewrite_used"], allow_fallback)
         state["rewrite_used"] = rewrite_used
         state["fallback"] = state["fallback"] or sar_fallback
-        sar = {key: value for key, value in sar.items() if key != "sentences"}
         sar["narrative"] = narrative
+    sar = {key: value for key, value in sar.items() if key not in {"sentences", "fallback", "tokens"}}
+    if language_fallback:
+        stop_text += " The summary used the evidence claims because the language-model key was not used."
+    state["language_fallback"] = language_fallback
     result = build(
         state["case"],
         measured,
@@ -365,9 +369,11 @@ def _step_prose(state: dict, allow_fallback: bool) -> None:
         written_to_graph=False,
     )
     result["answer"]["tool_calls"] = 8 + (1 if state["hop_used"] else 0)
+    result["answer"]["tokens"] = state.get("tokens") or 0
     result["demo"]["approved"] = []
     result["demo"]["hop"] = state["hop_name"]
     result["demo"]["control_fallback"] = state["fallback"]
+    result["demo"]["language_fallback"] = state.get("language_fallback", False)
     result["demo"]["why_not"] = state.get("why_not") or []
     state["result"] = result
     state["phase"] = "approval"
