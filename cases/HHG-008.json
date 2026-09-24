@@ -82,7 +82,7 @@
       "CC-1293",
       "CC-1715"
     ],
-    "summary": "Case HHG-008 on card C13171-K2: $55.68 online at 2016-12-19 22:08:56. No fraud pattern in this card's history. Fraud probability is 0.36. We assumed: still ambiguous after the ask, so no reply arrives within 24 hours. Final actions: MONITOR_CARD, DECLINE_TRANSACTION, CREATE_CASE.",
+    "summary": "Case HHG-008 on card C13171-K2: $55.68 online at 2016-12-19 22:08:56. No fraud pattern in this card's history. Fraud probability is 0.36. Pattern is none. We assumed: still ambiguous after the ask, so no reply arrives within 24 hours. Final actions: MONITOR_CARD, DECLINE_TRANSACTION, CREATE_CASE.",
     "written_to_graph": false,
     "graph_case_id": "EXAM-HHG-008"
   },
@@ -133,9 +133,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Further lookups would not change the action list. Drop the customer reply evidence and the action list changes. That family is the point of commitment.",
-  "tool_calls": 6,
+  "stop_reason": "Further lookups would not change the action list. Control gates used the deterministic fallback. The summary used the evidence claims because the language-model key was not used. Drop the customer reply evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 8,
   "tokens": 0,
-  "latency_s": 0.019,
-  "written_to_graph": false
+  "latency_s": 0.0
 }

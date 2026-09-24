@@ -7,8 +7,6 @@ import time
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse
-
 from graph import load_index
 from harness import resume, run
 
@@ -22,7 +20,6 @@ def _repo() -> Path:
 
 ROOT = _repo()
 CASES = ROOT / "cases"
-DASHBOARD = ROOT / "apps" / "dashboard"
 
 app = FastAPI(title="HHGOA Case Desk")
 INDEX = None
@@ -117,4 +114,4 @@ async def approve(case_id: str, request: Request):
 
 @app.get("/")
 def home():
-    return FileResponse(DASHBOARD / "index.html")
+    return {"service": "HHGOA case desk", "health": "/api/health", "cases": "/api/cases"}

@@ -200,10 +200,22 @@ def build_index() -> GraphIndex:
     return index
 
 
+class _IndexPickle(pickle.Unpickler):
+    """Older caches were written when this module was named fraud_agent.index."""
+
+    def find_class(self, module: str, name: str):
+        if module.startswith("fraud_agent"):
+            module = "graph.private.local_index"
+        return super().find_class(module, name)
+
+
 def load_index() -> GraphIndex:
     if CACHE.exists():
-        with open(CACHE, "rb") as handle:
-            return pickle.load(handle)
+        try:
+            with open(CACHE, "rb") as handle:
+                return _IndexPickle(handle).load()
+        except (AttributeError, ModuleNotFoundError, pickle.UnpicklingError):
+            pass
     return build_index()
 
 

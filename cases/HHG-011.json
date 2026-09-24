@@ -1,68 +1,68 @@
 {
-  "case_id": "HHG-004",
+  "case_id": "HHG-011",
   "case": {
-    "status": "open",
+    "status": "escalated",
     "verdict": "uncertain",
-    "fraud_probability": 0.7184,
+    "fraud_probability": 0.76,
     "pattern": "card_not_present_new_device",
     "pattern_description": "",
     "affected_txn_ids": [
-      "3580804",
-      "3583227",
-      "3583499",
-      "3583503",
-      "3584017",
-      "3585446",
-      "3585726",
-      "3587858"
+      "3578405",
+      "3578451",
+      "3578471",
+      "3578475",
+      "3578483",
+      "3578486",
+      "3578491",
+      "3578496",
+      "3578506",
+      "3578817",
+      "3578995",
+      "3578997"
     ],
-    "first_suspicious_txn_id": "3580804",
+    "first_suspicious_txn_id": "3578405",
     "connected_card_ids": [
-      "C03095-K2",
-      "C05031-K2",
-      "C07518-K2",
-      "C04248-K2"
+      "C05595-K1",
+      "C05678-K1"
     ],
     "connected_device_profiles": [
-      "firefox 47.0"
+      "SM-G610F Build/NRD90M | chrome 66.0 for android"
     ],
-    "exposure_usd": 384.43,
+    "exposure_usd": 641.78,
     "evidence": [
       {
-        "claim": "Flagged 3583227 is $128.33 online on 2016-12-29 01:53:54.",
+        "claim": "Flagged 3583368 is $131.30 online on 2016-12-29 03:27:44.",
         "source": "graph",
         "ref": "query:card_history",
         "entity_ids": [
-          "3583227",
-          "C08106-K1"
+          "3583368",
+          "C11923-K2"
         ]
       },
       {
-        "claim": "Customer C08106 message: 'I never made this $128.33 purchase. Please check my card.' Refers to 3583227.",
+        "claim": "Customer C11923 message: 'I never made this $131.30 purchase. Please check my card.' Refers to 3583368.",
         "source": "customer",
         "ref": "case_pack:trigger_text",
         "entity_ids": [
-          "C08106",
-          "3583227"
+          "C11923",
+          "3583368"
         ]
       },
       {
-        "claim": "Purchase came from a device marked New: firefox 47.0.",
+        "claim": "Purchase came from a device marked New: SM-G610F Build/NRD90M | chrome 66.0 for android.",
         "source": "graph",
         "ref": "query:device_profile",
         "entity_ids": [
-          "3583227"
+          "3583368"
         ]
       },
       {
-        "claim": "4 other known cards share this device profile.",
+        "claim": "2 other known cards share this device profile.",
         "source": "graph",
         "ref": "query:device_neighbors",
         "entity_ids": [
-          "C03095-K2",
-          "C05031-K2",
-          "C07518-K2",
-          "C04248-K2"
+          "C05595-K1",
+          "C05678-K1"
         ]
       },
       {
@@ -70,54 +70,53 @@
         "source": "graph",
         "ref": "query:pattern_window",
         "entity_ids": [
-          "3583227"
+          "3583368"
         ]
       },
       {
-        "claim": "Prior CC-0696 was cleared (none). It guides the search. It is not proof for this purchase.",
+        "claim": "Prior CC-0031 was confirmed_fraud (card_not_present_new_device). It guides the search. It is not proof for this purchase.",
         "source": "graph",
         "ref": "query:prior_cases",
         "entity_ids": [
-          "CC-0696"
+          "CC-0031"
         ]
       },
       {
-        "claim": "Prior CC-1736 was confirmed_fraud (card_not_present_fraud). It guides the search. It is not proof for this purchase.",
+        "claim": "Prior CC-0290 was confirmed_fraud (card_testing). It guides the search. It is not proof for this purchase.",
         "source": "graph",
         "ref": "query:prior_cases",
         "entity_ids": [
-          "CC-1736"
+          "CC-0290"
         ]
       },
       {
-        "claim": "Prior CC-2121 was confirmed_fraud (card_not_present_fraud). It guides the search. It is not proof for this purchase.",
+        "claim": "Prior CC-1056 was confirmed_fraud (card_not_present_new_device). It guides the search. It is not proof for this purchase.",
         "source": "graph",
         "ref": "query:prior_cases",
         "entity_ids": [
-          "CC-2121"
+          "CC-1056"
         ]
       },
       {
-        "claim": "4 other cards share this device across 6 customers.",
+        "claim": "2 other cards share this device across 4 customers.",
         "source": "graph",
         "ref": "query:component_cards",
         "entity_ids": [
-          "C03095-K2",
-          "C05031-K2",
-          "C07518-K2",
-          "C04248-K2"
+          "C05595-K1",
+          "C05678-K1"
         ]
       }
     ],
     "similar_prior_cases": [
-      "CC-0696",
-      "CC-1736",
-      "CC-2121",
-      "CC-3778"
+      "CC-0031",
+      "CC-0290",
+      "CC-1056",
+      "CC-2247",
+      "CC-2673"
     ],
-    "summary": "Case HHG-004 on card C08106-K1: $128.33 online at 2016-12-29 01:53:54. A burst of online purchases from a new device that is also a proxy or shared with another card. Fraud probability is 0.72. Pattern is card_not_present_new_device. Final actions: CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS.",
+    "summary": "Case HHG-011 on card C11923-K2: $131.30 online at 2016-12-29 03:27:44. A burst of online purchases from a new device that is also a proxy or shared with another card. Fraud probability is 0.76. Pattern is card_not_present_new_device. Final actions: CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS, ESCALATE_TO_ANALYST.",
     "written_to_graph": false,
-    "graph_case_id": "EXAM-HHG-004"
+    "graph_case_id": "EXAM-HHG-011"
   },
   "evidence_requests": [],
   "next_best_actions": {
@@ -136,6 +135,11 @@
         "action": "MONITOR_CONNECTED_CARDS",
         "route": "auto",
         "reason": "R6: watch the other cards on this device"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R8: still uncertain and exposure is over $500"
       }
     ],
     "final": [
@@ -153,6 +157,11 @@
         "action": "MONITOR_CONNECTED_CARDS",
         "route": "auto",
         "reason": "R6: watch the other cards on this device"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R8: still uncertain and exposure is over $500"
       }
     ],
     "what_changed": "nothing"
@@ -160,17 +169,15 @@
   "sar": {
     "file": true,
     "reason": "R6: a distinctive device is shared with a confirmed fraud case",
-    "narrative": "Customer C08106 used card C08106-K1. A burst of online purchases from a new device that is also a proxy or shared with another card. The flagged transaction is 3583227 for $128.33 on 2016-12-29 01:53:54, channel online, billing region not recorded. The device profile is firefox 47.0. The same profile appears on cards C03095-K2, C05031-K2, C07518-K2, C04248-K2. Suspicious amount on the affected transactions is $128.33. The report is filed because the final action list includes FILE_REPORT. Closed cases guided the search and are not treated as proof by themselves.",
+    "narrative": "Customer C11923 used card C11923-K2. A burst of online purchases from a new device that is also a proxy or shared with another card. The flagged transaction is 3583368 for $131.30 on 2016-12-29 03:27:44, channel online, billing region not recorded. The device profile is SM-G610F Build/NRD90M | chrome 66.0 for android. The same profile appears on cards C05595-K1, C05678-K1. Suspicious amount on the affected transactions is $131.30. The report is filed because the final action list includes FILE_REPORT. Closed cases guided the search and are not treated as proof by themselves.",
     "subjects": [
-      "C08106",
-      "C08106-K1",
-      "C03095-K2",
-      "C05031-K2",
-      "C07518-K2",
-      "C04248-K2",
-      "firefox 47.0"
+      "C11923",
+      "C11923-K2",
+      "C05595-K1",
+      "C05678-K1",
+      "SM-G610F Build/NRD90M | chrome 66.0 for android"
     ],
-    "total_amount_usd": 128.33,
+    "total_amount_usd": 131.3,
     "activity_dates": [
       "2016-12-29",
       "2016-12-29"
@@ -179,5 +186,5 @@
   "stop_reason": "Further lookups would not change the action list. Control gates used the deterministic fallback. The summary used the evidence claims because the language-model key was not used. Drop the device evidence and the action list changes. That family is the point of commitment.",
   "tool_calls": 9,
   "tokens": 0,
-  "latency_s": 0.062
+  "latency_s": 0.0
 }
