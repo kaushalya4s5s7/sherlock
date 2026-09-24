@@ -1,0 +1,90 @@
+{
+  "case": {
+    "case_id": "HHG-002",
+    "decision": "uncertain",
+    "fraud_probability": 0.716,
+    "pattern": "none",
+    "pattern_description": "No fraud pattern in this card's history.",
+    "why_not": [
+      {
+        "pattern": "card_testing",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "card_not_present_fraud",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "card_not_present_new_device",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "out_of_region_use",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "account_takeover",
+        "reason": "the measurement for this pattern did not fire"
+      }
+    ],
+    "summary": "Case HHG-002 on card C11891-K1: $292.36 online at 2016-11-22 17:27:07. No fraud pattern in this card's history. Fraud probability is 0.72. Final actions: CREATE_CASE.",
+    "evidence": [
+      {
+        "text": "Flagged 3478782 is $292.36 online on 2016-11-22 17:27:07.",
+        "source": "transaction",
+        "ref": "3478782",
+        "family": "sequence",
+        "supports": "fraud"
+      },
+      {
+        "text": "Model risk score on this row is 0.79. The score is a prior, not a finding.",
+        "source": "risk_score",
+        "ref": "3478782",
+        "family": "sequence",
+        "supports": "fraud"
+      },
+      {
+        "text": "Prior CC-4160 on a related card was confirmed_fraud (card_not_present_fraud). It guides the search. It is not proof.",
+        "source": "prior_case",
+        "ref": "CC-4160",
+        "family": "prior_case",
+        "supports": "fraud"
+      },
+      {
+        "text": "Exposure on the affected transactions is $0.00.",
+        "source": "transaction",
+        "ref": "3478782",
+        "family": "sequence",
+        "supports": "fraud"
+      }
+    ]
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "target": "HHG-002"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "target": "HHG-002"
+      }
+    ],
+    "what_changed": "The reply did not change the action list."
+  },
+  "sar": null,
+  "stop_reason": {
+    "reason": "diminishing_returns",
+    "explanation": "Further lookups would not change the action list. No single family changes the action list on its own. The decision is the combination."
+  },
+  "tool_calls": 6,
+  "tokens": 0,
+  "latency_s": 0.012,
+  "graph_case_id": "EXAM-HHG-002",
+  "written_to_graph": false
+}

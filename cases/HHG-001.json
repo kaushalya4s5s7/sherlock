@@ -1,0 +1,114 @@
+{
+  "case": {
+    "case_id": "HHG-001",
+    "decision": "uncertain",
+    "fraud_probability": 0.2587,
+    "pattern": "none",
+    "pattern_description": "In-person purchase in region 444.0, which this card has used before.",
+    "why_not": [
+      {
+        "pattern": "card_testing",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "card_not_present_fraud",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "card_not_present_new_device",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "out_of_region_use",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "account_takeover",
+        "reason": "the measurement for this pattern did not fire"
+      }
+    ],
+    "summary": "Case HHG-001 on card C12382-K1: $77.07 in person at 2016-12-04 19:55:28. In-person purchase in region 444.0, which this card has used before. Fraud probability is 0.26. Final actions: MONITOR_CARD, CREATE_CASE.",
+    "evidence": [
+      {
+        "text": "Flagged 3514030 is $77.07 in person on 2016-12-04 19:55:28.",
+        "source": "transaction",
+        "ref": "3514030",
+        "family": "sequence",
+        "supports": "fraud"
+      },
+      {
+        "text": "Model risk score on this row is 0.61. The score is a prior, not a finding.",
+        "source": "risk_score",
+        "ref": "3514030",
+        "family": "sequence",
+        "supports": "fraud"
+      },
+      {
+        "text": "In-person purchase in region 444.0, which this card has used before.",
+        "source": "transaction",
+        "ref": "3514030",
+        "family": "region",
+        "supports": "fraud"
+      },
+      {
+        "text": "Prior CC-1066 on a related card was confirmed_fraud (out_of_region_use). It guides the search. It is not proof.",
+        "source": "prior_case",
+        "ref": "CC-1066",
+        "family": "prior_case",
+        "supports": "fraud"
+      },
+      {
+        "text": "Prior CC-1673 on a related card was confirmed_fraud (card_not_present_new_device). It guides the search. It is not proof.",
+        "source": "prior_case",
+        "ref": "CC-1673",
+        "family": "prior_case",
+        "supports": "fraud"
+      },
+      {
+        "text": "Exposure on the affected transactions is $0.00.",
+        "source": "transaction",
+        "ref": "3514030",
+        "family": "sequence",
+        "supports": "fraud"
+      }
+    ]
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "target": "C12382-K1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "target": "HHG-001"
+      }
+    ],
+    "final": [
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "target": "C12382-K1"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "target": "HHG-001"
+      }
+    ],
+    "what_changed": "The reply did not change the action list."
+  },
+  "sar": null,
+  "stop_reason": {
+    "reason": "diminishing_returns",
+    "explanation": "Further lookups would not change the action list. Drop the region evidence and the action list changes. That family is the point of commitment."
+  },
+  "tool_calls": 6,
+  "tokens": 0,
+  "latency_s": 0.05,
+  "graph_case_id": "EXAM-HHG-001",
+  "written_to_graph": false
+}

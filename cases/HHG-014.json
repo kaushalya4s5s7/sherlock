@@ -1,0 +1,179 @@
+{
+  "case_id": "HHG-014",
+  "case": {
+    "status": "escalated",
+    "verdict": "fraud",
+    "fraud_probability": 0.7017,
+    "pattern": "undocumented",
+    "pattern_description": "Samsung SM-G935F on Chrome for Android through an anonymous proxy, seen on 52 cardholders.",
+    "affected_txn_ids": [
+      "3478561"
+    ],
+    "first_suspicious_txn_id": "3478561",
+    "connected_card_ids": [
+      "C01996-K2",
+      "C03528-K1",
+      "C09174-K1",
+      "C10326-K1",
+      "C12645-K1",
+      "C08972-K2",
+      "C11670-K2",
+      "C10955-K2",
+      "C06031-K2",
+      "C02910-K1",
+      "C10193-K2",
+      "C04311-K1"
+    ],
+    "connected_device_profiles": [
+      "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080"
+    ],
+    "exposure_usd": 74.96,
+    "evidence": [
+      {
+        "claim": "Flagged 3478561 is $74.96 online on 2016-11-22 16:11:00.",
+        "source": "graph",
+        "ref": "query:card_history",
+        "entity_ids": [
+          "3478561",
+          "C13487-K1"
+        ]
+      },
+      {
+        "claim": "Purchase came from a device marked New: SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080.",
+        "source": "graph",
+        "ref": "query:device_profile",
+        "entity_ids": [
+          "3478561"
+        ]
+      },
+      {
+        "claim": "12 other known cards share this device profile.",
+        "source": "graph",
+        "ref": "query:device_neighbors",
+        "entity_ids": [
+          "C01996-K2",
+          "C03528-K1",
+          "C09174-K1",
+          "C10326-K1",
+          "C12645-K1",
+          "C08972-K2",
+          "C11670-K2",
+          "C10955-K2"
+        ]
+      },
+      {
+        "claim": "Samsung SM-G935F on Chrome for Android through an anonymous proxy, seen on 52 cardholders.",
+        "source": "graph",
+        "ref": "query:pattern_window",
+        "entity_ids": [
+          "3478561"
+        ]
+      },
+      {
+        "claim": "Prior CC-2649 was confirmed_fraud (undocumented). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-2649"
+        ]
+      },
+      {
+        "claim": "Prior CC-2971 was confirmed_fraud (undocumented). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-2971"
+        ]
+      },
+      {
+        "claim": "Prior CC-2985 was confirmed_fraud (undocumented). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-2985"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-2649",
+      "CC-2971",
+      "CC-2985",
+      "CC-3035"
+    ],
+    "summary": "Case HHG-014 on card C13487-K1: $74.96 online at 2016-11-22 16:11:00. Samsung SM-G935F on Chrome for Android through an anonymous proxy, seen on 52 cardholders. Fraud probability is 0.70. Final actions: CREATE_CASE, FILE_REPORT, ESCALATE_TO_ANALYST, MONITOR_CONNECTED_CARDS.",
+    "written_to_graph": false,
+    "graph_case_id": "EXAM-HHG-014"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R9: coordinated activity with no named pattern"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: a person should see an unnamed pattern"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: watch the other cards on this device"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R9: coordinated activity with no named pattern"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: a person should see an unnamed pattern"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: watch the other cards on this device"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "R9: coordinated activity with no named pattern",
+    "narrative": "Customer C13487 used card C13487-K1. Samsung SM-G935F on Chrome for Android through an anonymous proxy, seen on 52 cardholders. The flagged transaction is 3478561 for $74.96 on 2016-11-22 16:11:00, channel online, billing region 191.0. The device profile is SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080. The same profile appears on cards C01996-K2, C03528-K1, C09174-K1, C10326-K1. Suspicious amount on the affected transactions is $74.96. The report is filed because the final action list includes FILE_REPORT. Closed cases guided the search and are not treated as proof by themselves.",
+    "subjects": [
+      "C13487",
+      "C13487-K1",
+      "C01996-K2",
+      "C03528-K1",
+      "C09174-K1",
+      "C10326-K1",
+      "SM-G935F Build/NRD90M | Android 7.0 | chrome 62.0 for android | 1920x1080"
+    ],
+    "total_amount_usd": 74.96,
+    "activity_dates": [
+      "2016-11-22",
+      "2016-11-22"
+    ]
+  },
+  "stop_reason": "The undocumented pattern is a hard stop: open, report, escalate, and write the shape in our own words. Drop the device evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 6,
+  "tokens": 0,
+  "latency_s": 0.004,
+  "written_to_graph": false
+}

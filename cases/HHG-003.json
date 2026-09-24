@@ -1,0 +1,124 @@
+{
+  "case_id": "HHG-003",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.024,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0,
+    "evidence": [
+      {
+        "claim": "Flagged 3530164 is $49.00 in person on 2016-12-10 13:01:21.",
+        "source": "graph",
+        "ref": "query:card_history",
+        "entity_ids": [
+          "3530164",
+          "C08623-K2"
+        ]
+      },
+      {
+        "claim": "Customer C08623 message: 'I never made this $49.00 purchase. Please check my card.' Refers to 3530164.",
+        "source": "customer",
+        "ref": "case_pack:trigger_text",
+        "entity_ids": [
+          "C08623",
+          "3530164"
+        ]
+      },
+      {
+        "claim": "In-person purchase in region 330.0, which this card has used before.",
+        "source": "graph",
+        "ref": "query:pattern_window",
+        "entity_ids": [
+          "3530164"
+        ]
+      },
+      {
+        "claim": "Prior CC-1589 was cleared (none). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-1589"
+        ]
+      },
+      {
+        "claim": "Prior CC-2817 was confirmed_fraud (out_of_region_use). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-2817"
+        ]
+      },
+      {
+        "claim": "Prior CC-2935 was confirmed_fraud (out_of_region_use). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-2935"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-1589",
+      "CC-2817",
+      "CC-2935",
+      "CC-3327",
+      "CC-3682"
+    ],
+    "summary": "Case HHG-003 on card C08623-K2: $49.00 in person at 2016-12-10 13:01:21. In-person purchase in region 330.0, which this card has used before. Fraud probability is 0.02. We assumed: the purchase is in a region this card has used before, so the customer confirms it. Final actions: CLOSE_NO_FRAUD, ALLOW_TRANSACTION.",
+    "written_to_graph": false,
+    "graph_case_id": "EXAM-HHG-003"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Yes, that was me. Assumption: the purchase is in a region this card has used before, so the customer confirms it."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      },
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: one weak signal, so verify before any block"
+      }
+    ],
+    "final": [
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3: the customer confirmed, or the history does not support fraud"
+      },
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "The purchase matches this card's own history"
+      }
+    ],
+    "what_changed": "After the assumed reply (confirm), actions moved from CREATE_CASE, VERIFY_WITH_CUSTOMER to CLOSE_NO_FRAUD, ALLOW_TRANSACTION. the purchase is in a region this card has used before, so the customer confirms it."
+  },
+  "sar": {
+    "file": false,
+    "reason": "FILE_REPORT is not in the final actions.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "The simulated reply settled the case, so another lookup would not change the action. Drop the region evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 6,
+  "tokens": 0,
+  "latency_s": 0.025,
+  "written_to_graph": false
+}

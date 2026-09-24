@@ -1,0 +1,11 @@
+.venv/
+.cache/
+__pycache__/
+*.pyc
+runs/
+.pytest_cache/
+
+*.zip
+HHGOA_IEEE
+HHGOA_IEEE-20260923T105105Z-1-001.zip
+/HHGOA_IEEE 2

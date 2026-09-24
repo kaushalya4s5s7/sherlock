@@ -1,0 +1,29 @@
+[project]
+name = "hhgoa-case-desk"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["fastapi", "uvicorn"]
+
+[tool.uv.workspace]
+members = ["packages/*", "apps/api"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "packages/contracts",
+  "packages/intake",
+  "packages/graph",
+  "packages/belief",
+  "packages/pattern",
+  "packages/control",
+  "packages/policy",
+  "packages/reply",
+  "packages/stop",
+  "packages/language",
+  "packages/memory",
+  "packages/answer",
+  "packages/harness",
+  "packages/calibration",
+  "packages/community",
+  "apps/api",
+]
+testpaths = ["packages"]

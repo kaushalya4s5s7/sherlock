@@ -1,0 +1,151 @@
+{
+  "case": {
+    "case_id": "HHG-015",
+    "decision": "fraud",
+    "fraud_probability": 0.9431,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "Online purchase from a proxy or a device shared with a confirmed case.",
+    "why_not": [
+      {
+        "pattern": "card_testing",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "card_not_present_new_device",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "out_of_region_use",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "account_takeover",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "undocumented",
+        "reason": "no structuring cluster and no SM-G935F proxy ring"
+      }
+    ],
+    "summary": "Case HHG-015 on card C03042-K1: $599.94 online at 2016-11-17 14:03:36. Online purchase from a proxy or a device shared with a confirmed case. Fraud probability is 0.94. Final actions: CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS, ESCALATE_TO_ANALYST.",
+    "evidence": [
+      {
+        "text": "Flagged 3464869 is $599.94 online on 2016-11-17 14:03:36.",
+        "source": "transaction",
+        "ref": "3464869",
+        "family": "sequence",
+        "supports": "fraud"
+      },
+      {
+        "text": "Model risk score on this row is 0.77. The score is a prior, not a finding.",
+        "source": "risk_score",
+        "ref": "3464869",
+        "family": "sequence",
+        "supports": "fraud"
+      },
+      {
+        "text": "Device is a device marked New: Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050.",
+        "source": "identity",
+        "ref": "3464869",
+        "family": "device",
+        "supports": "fraud"
+      },
+      {
+        "text": "5 other known card ids share this device.",
+        "source": "identity",
+        "ref": "Trident/7.0 | Windows 8.1 | ie 11.0 for ",
+        "family": "device",
+        "supports": "fraud"
+      },
+      {
+        "text": "Online purchase from a proxy or a device shared with a confirmed case.",
+        "source": "transaction",
+        "ref": "3464869",
+        "family": "sequence",
+        "supports": "fraud"
+      },
+      {
+        "text": "Prior CC-0615 on a related card was confirmed_fraud (card_not_present_new_device). It guides the search. It is not proof.",
+        "source": "prior_case",
+        "ref": "CC-0615",
+        "family": "prior_case",
+        "supports": "fraud"
+      },
+      {
+        "text": "Prior CC-1313 on a related card was cleared (none). It guides the search. It is not proof.",
+        "source": "prior_case",
+        "ref": "CC-1313",
+        "family": "prior_case",
+        "supports": "fraud"
+      },
+      {
+        "text": "Exposure on the affected transactions is $599.94.",
+        "source": "transaction",
+        "ref": "3464869",
+        "family": "sequence",
+        "supports": "fraud"
+      }
+    ]
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "target": "HHG-015"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "requires_L2",
+        "target": "C03042"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "target": "C05704-K2,C11227-K2,C01155-K2,C05292-K1,C11413-K1"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "target": "C03042"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "target": "HHG-015"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "requires_L2",
+        "target": "C03042"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "target": "C05704-K2,C11227-K2,C01155-K2,C05292-K1,C11413-K1"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "target": "C03042"
+      }
+    ],
+    "what_changed": "The reply did not change the action list."
+  },
+  "sar": {
+    "file": true,
+    "narrative": "Who: Card C03042-K1 of customer C03042 What: Online purchase from a proxy or a device shared with a confirmed case. Flagged transaction 3464869 for $599.94. When: Activity time 2016-11-17 14:03:36 (dataset clock, not wall clock). Where: Channel online, billing region 327.0. Device: Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050. Why: The action list includes FILE_REPORT, so the narrative is filed with it. How: measurements from the card history, the device profile, and closed cases. The model did not write this."
+  },
+  "stop_reason": {
+    "reason": "high_confidence",
+    "explanation": "Probability is outside 0.15\u20130.85 and at least two evidence families agree. Drop the device evidence and the action list changes. That family is the point of commitment."
+  },
+  "tool_calls": 6,
+  "tokens": 0,
+  "latency_s": 0.011,
+  "graph_case_id": "EXAM-HHG-015",
+  "written_to_graph": false
+}

@@ -1,0 +1,141 @@
+{
+  "case": {
+    "case_id": "HHG-004",
+    "decision": "uncertain",
+    "fraud_probability": 0.7184,
+    "pattern": "card_not_present_new_device",
+    "pattern_description": "A burst of online purchases from a new device that is also a proxy or shared with another card.",
+    "why_not": [
+      {
+        "pattern": "card_testing",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "card_not_present_fraud",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "out_of_region_use",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "account_takeover",
+        "reason": "the measurement for this pattern did not fire"
+      },
+      {
+        "pattern": "undocumented",
+        "reason": "no structuring cluster and no SM-G935F proxy ring"
+      }
+    ],
+    "summary": "Case HHG-004 on card C08106-K1: $128.33 online at 2016-12-29 01:53:54. A burst of online purchases from a new device that is also a proxy or shared with another card. Fraud probability is 0.72. Final actions: CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS.",
+    "evidence": [
+      {
+        "text": "Flagged 3583227 is $128.33 online on 2016-12-29 01:53:54.",
+        "source": "transaction",
+        "ref": "3583227",
+        "family": "sequence",
+        "supports": "fraud"
+      },
+      {
+        "text": "Customer report: \"Customer C08106 message: 'I never made this $128.33 purchase. Please check my card.' Refers to 3583227.\"",
+        "source": "customer_report",
+        "ref": "HHG-004",
+        "family": "customer_reply",
+        "supports": "fraud"
+      },
+      {
+        "text": "Device is a device marked New: firefox 47.0.",
+        "source": "identity",
+        "ref": "3583227",
+        "family": "device",
+        "supports": "fraud"
+      },
+      {
+        "text": "4 other known card ids share this device.",
+        "source": "identity",
+        "ref": "firefox 47.0",
+        "family": "device",
+        "supports": "fraud"
+      },
+      {
+        "text": "A burst of online purchases from a new device that is also a proxy or shared with another card.",
+        "source": "transaction",
+        "ref": "3583227",
+        "family": "sequence",
+        "supports": "fraud"
+      },
+      {
+        "text": "Prior CC-0696 on a related card was cleared (none). It guides the search. It is not proof.",
+        "source": "prior_case",
+        "ref": "CC-0696",
+        "family": "prior_case",
+        "supports": "fraud"
+      },
+      {
+        "text": "Prior CC-1736 on a related card was confirmed_fraud (card_not_present_fraud). It guides the search. It is not proof.",
+        "source": "prior_case",
+        "ref": "CC-1736",
+        "family": "prior_case",
+        "supports": "fraud"
+      },
+      {
+        "text": "Exposure on the affected transactions is $384.43.",
+        "source": "transaction",
+        "ref": "3583227",
+        "family": "sequence",
+        "supports": "fraud"
+      }
+    ]
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "target": "HHG-004"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "requires_L2",
+        "target": "C08106"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "target": "C07518-K2,C03095-K2,C05031-K2,C04248-K2"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "target": "HHG-004"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "requires_L2",
+        "target": "C08106"
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "target": "C07518-K2,C03095-K2,C05031-K2,C04248-K2"
+      }
+    ],
+    "what_changed": "The reply did not change the action list."
+  },
+  "sar": {
+    "file": true,
+    "narrative": "Who: Card C08106-K1 of customer C08106 What: A burst of online purchases from a new device that is also a proxy or shared with another card. Flagged transaction 3583227 for $128.33. When: Activity time 2016-12-29 01:53:54 (dataset clock, not wall clock). Where: Channel online, billing region unknown. Device: firefox 47.0. Why: The action list includes FILE_REPORT, so the narrative is filed with it. How: measurements from the card history, the device profile, and closed cases. The model did not write this."
+  },
+  "stop_reason": {
+    "reason": "diminishing_returns",
+    "explanation": "Further lookups would not change the action list. Drop the device evidence and the action list changes. That family is the point of commitment."
+  },
+  "tool_calls": 6,
+  "tokens": 0,
+  "latency_s": 0.045,
+  "graph_case_id": "EXAM-HHG-004",
+  "written_to_graph": false
+}

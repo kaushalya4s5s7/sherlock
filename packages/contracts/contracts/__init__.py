@@ -1,0 +1,18 @@
+"""Shared names. No I/O."""
+
+RULES = ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10"]
+
+AUTO = {
+    "ALLOW_TRANSACTION",
+    "MONITOR_CARD",
+    "MONITOR_CONNECTED_CARDS",
+    "WARN_CUSTOMER",
+    "VERIFY_WITH_CUSTOMER",
+    "STEP_UP_AUTH",
+    "GENERATE_REPORT",
+    "CREATE_CASE",
+    "ESCALATE_TO_ANALYST",
+    "CLOSE_NO_FRAUD",
+}
+L1 = {"DECLINE_TRANSACTION"}
+L2 = {"BLOCK_ALL_CARDS", "FILE_REPORT"}

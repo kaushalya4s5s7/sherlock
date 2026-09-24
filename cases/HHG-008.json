@@ -1,0 +1,141 @@
+{
+  "case_id": "HHG-008",
+  "case": {
+    "status": "open",
+    "verdict": "uncertain",
+    "fraud_probability": 0.3567,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3558054"
+    ],
+    "first_suspicious_txn_id": "3558054",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "chrome 66.0"
+    ],
+    "exposure_usd": 55.68,
+    "evidence": [
+      {
+        "claim": "Flagged 3558054 is $55.68 online on 2016-12-19 22:08:56.",
+        "source": "graph",
+        "ref": "query:card_history",
+        "entity_ids": [
+          "3558054",
+          "C13171-K2"
+        ]
+      },
+      {
+        "claim": "Customer C13171 message: 'I never made this $55.68 purchase. Please check my card.' Refers to 3558054.",
+        "source": "customer",
+        "ref": "case_pack:trigger_text",
+        "entity_ids": [
+          "C13171",
+          "3558054"
+        ]
+      },
+      {
+        "claim": "Purchase came from a device: chrome 66.0.",
+        "source": "graph",
+        "ref": "query:device_profile",
+        "entity_ids": [
+          "3558054"
+        ]
+      },
+      {
+        "claim": "No fraud pattern in this card's history.",
+        "source": "graph",
+        "ref": "query:pattern_window",
+        "entity_ids": [
+          "3558054"
+        ]
+      },
+      {
+        "claim": "Prior CC-0056 was confirmed_fraud (card_not_present_new_device). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-0056"
+        ]
+      },
+      {
+        "claim": "Prior CC-0467 was confirmed_fraud (card_not_present_new_device). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-0467"
+        ]
+      },
+      {
+        "claim": "Prior CC-0772 was confirmed_fraud (card_not_present_new_device). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-0772"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0056",
+      "CC-0467",
+      "CC-0772",
+      "CC-1293",
+      "CC-1715"
+    ],
+    "summary": "Case HHG-008 on card C13171-K2: $55.68 online at 2016-12-19 22:08:56. No fraud pattern in this card's history. Fraud probability is 0.36. We assumed: still ambiguous after the ask, so no reply arrives within 24 hours. Final actions: MONITOR_CARD, DECLINE_TRANSACTION, CREATE_CASE.",
+    "written_to_graph": false,
+    "graph_case_id": "EXAM-HHG-008"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "No reply within 24 hours. Assumption: still ambiguous after the ask, so no reply arrives within 24 hours."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1: one weak signal, so verify before any block"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "final": [
+      {
+        "action": "MONITOR_CARD",
+        "route": "auto",
+        "reason": "R4: keep the card watched"
+      },
+      {
+        "action": "DECLINE_TRANSACTION",
+        "route": "L1",
+        "reason": "R4: no reply in 24 hours, so decline until the customer answers"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "what_changed": "After the assumed reply (none), actions moved from VERIFY_WITH_CUSTOMER, CREATE_CASE to MONITOR_CARD, DECLINE_TRANSACTION, CREATE_CASE. still ambiguous after the ask, so no reply arrives within 24 hours."
+  },
+  "sar": {
+    "file": false,
+    "reason": "FILE_REPORT is not in the final actions.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Further lookups would not change the action list. Drop the customer reply evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 6,
+  "tokens": 0,
+  "latency_s": 0.019,
+  "written_to_graph": false
+}
