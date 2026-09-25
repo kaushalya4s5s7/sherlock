@@ -13,6 +13,20 @@ export type ClosedCase = {
   notes: string;
 };
 
+export type CaseAction = { action: string; route: string };
+
+export type CaseResult = {
+  verdict: string;
+  pattern: string;
+  exposure_usd: number;
+  written_to_graph: boolean;
+  graph_case_id: string;
+  sar_file: boolean;
+  initial: CaseAction[];
+  final: CaseAction[];
+  what_changed: string;
+};
+
 export type CaseRow = {
   case_id: string;
   customer_id: string;
@@ -22,6 +36,7 @@ export type CaseRow = {
   trigger_text: string;
   ran: boolean;
   decision: string | null;
+  result?: CaseResult | null;
 };
 
 export type Investigation = {

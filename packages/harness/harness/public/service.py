@@ -651,16 +651,37 @@ def saved(case_id: str) -> dict | None:
     return result
 
 
-def saved_verdicts() -> dict[str, str]:
+def _action_brief(items: list | None) -> list[dict]:
+    return [{"action": item["action"], "route": item["route"]} for item in items or [] if item.get("action")]
+
+
+def saved_briefs() -> dict[str, dict]:
+    """The result fields the exam file already stores, one row per finished case."""
     found = {}
     for case_id, state in checkpoint.load_all().items():
         result = state.get("result") or {}
-        if not result.get("demo"):
+        answer = result.get("answer") or {}
+        case = answer.get("case") or {}
+        if not result.get("demo") or not case.get("verdict"):
             continue
-        verdict = ((result.get("answer") or {}).get("case") or {}).get("verdict")
-        if verdict:
-            found[case_id] = verdict
+        actions = answer.get("next_best_actions") or {}
+        sar = answer.get("sar") or {}
+        found[case_id] = {
+            "verdict": case["verdict"],
+            "pattern": case.get("pattern") or "none",
+            "exposure_usd": case.get("exposure_usd") or 0,
+            "written_to_graph": bool(case.get("written_to_graph")),
+            "graph_case_id": case.get("graph_case_id") or "",
+            "sar_file": bool(sar.get("file")),
+            "initial": _action_brief(actions.get("initial")),
+            "final": _action_brief(actions.get("final")),
+            "what_changed": actions.get("what_changed") or "nothing",
+        }
     return found
+
+
+def saved_verdicts() -> dict[str, str]:
+    return {case_id: brief["verdict"] for case_id, brief in saved_briefs().items()}
 
 
 def progress(case_id: str) -> dict:

@@ -9,7 +9,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from graph import load_index
-from harness import progress, resume, run, saved, saved_verdicts
+from harness import progress, resume, run, saved, saved_briefs, saved_verdicts
 
 
 def _repo() -> Path:
@@ -101,14 +101,37 @@ def health():
     }
 
 
+def _brief(result: dict | None) -> dict | None:
+    if not result:
+        return None
+    answer = result.get("answer") or {}
+    case = answer.get("case") or {}
+    if not case.get("verdict"):
+        return None
+    actions = answer.get("next_best_actions") or {}
+    sar = answer.get("sar") or {}
+    return {
+        "verdict": case["verdict"],
+        "pattern": case.get("pattern") or "none",
+        "exposure_usd": case.get("exposure_usd") or 0,
+        "written_to_graph": bool(case.get("written_to_graph")),
+        "graph_case_id": case.get("graph_case_id") or "",
+        "sar_file": bool(sar.get("file")),
+        "initial": [{"action": item["action"], "route": item["route"]} for item in actions.get("initial") or []],
+        "final": [{"action": item["action"], "route": item["route"]} for item in actions.get("final") or []],
+        "what_changed": actions.get("what_changed") or "nothing",
+    }
+
+
 @app.get("/api/cases")
 def list_cases():
     idx = graph_index()
-    remembered = saved_verdicts()
+    remembered = saved_briefs()
     rows = []
     for case in idx.pack:
         ran = RUNS.get(case["case_id"])
-        verdict = ran["answer"]["case"]["verdict"] if ran else remembered.get(case["case_id"])
+        brief = _brief(ran) if ran else remembered.get(case["case_id"])
+        verdict = (brief or {}).get("verdict")
         rows.append(
             {
                 "case_id": case["case_id"],
@@ -119,6 +142,7 @@ def list_cases():
                 "trigger_text": case.get("trigger_text") or "",
                 "ran": verdict is not None,
                 "decision": verdict,
+                "result": brief,
             }
         )
     return {"cases": rows}

@@ -52,6 +52,11 @@ img { display: block; max-width: 100%; }
 .table strong { display: block; font-weight: 500; }
 .table span, .table p, .fine { color: var(--muted); }
 .table p { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.table.done li { align-items: start; }
+.table.done .result p { white-space: normal; overflow: visible; text-overflow: unset; margin-top: 4px; }
+.table.done .result p:first-child { margin-top: 0; }
+.table.done .result strong { display: inline; font-weight: 500; color: var(--ink); }
+.table.done button { margin-top: 6px; }
 .table button, .hold button {
   justify-self: end;
   width: auto;
