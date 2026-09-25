@@ -1,4 +1,4 @@
-import type { CaseRow, Investigation } from "./types";
+import type { CaseRow, ClosedCase, Investigation } from "./types";
 
 export async function health(): Promise<{ transactions: number; closed_cases: number; graph: string }> {
   const response = await fetch("/api/health");
@@ -11,6 +11,32 @@ export async function listCases(): Promise<CaseRow[]> {
   if (!response.ok) throw new Error("The case list did not load.");
   const body = await response.json();
   return body.cases;
+}
+
+export type PipelineStep = {
+  id: string;
+  label: string;
+  detail: string;
+  status: "done" | "running" | "waiting";
+};
+
+export async function caseProgress(caseId: string): Promise<PipelineStep[]> {
+  const response = await fetch(`/api/cases/${caseId}/progress`);
+  if (!response.ok) throw new Error("The investigation progress did not load.");
+  const body = await response.json();
+  return body.steps;
+}
+
+export async function closedCase(caseId: string): Promise<ClosedCase> {
+  const response = await fetch(`/api/closed/${caseId}`);
+  if (!response.ok) throw new Error(`${caseId} is not in the closed history.`);
+  return response.json();
+}
+
+export async function openCase(caseId: string): Promise<Investigation> {
+  const saved = await fetch(`/api/cases/${caseId}`);
+  if (saved.ok) return saved.json();
+  return runCase(caseId);
 }
 
 export async function runCase(caseId: string): Promise<Investigation> {

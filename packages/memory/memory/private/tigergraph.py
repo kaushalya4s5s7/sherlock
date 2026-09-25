@@ -26,6 +26,25 @@ def _request(cfg: dict, path: str, payload: dict | None = None) -> dict:
         raise GraphWriteError(str(exc)) from exc
 
 
+def _edges(record: dict) -> dict:
+    edges: dict = {}
+    if record.get("card_id"):
+        edges["ON_CARD"] = {"BankCard": {record["card_id"]: {}}}
+    others = {
+        card: {}
+        for card in record.get("connected") or []
+        if card and card != record.get("card_id")
+    }
+    if others:
+        edges["EXAM_OTHER"] = {"BankCard": others}
+    txns = {txn: {} for txn in record.get("txn_ids") or [] if txn}
+    if txns:
+        edges["EXAM_TXN"] = {"Transaction": txns}
+    if record.get("device"):
+        edges["EXAM_DEVICE"] = {"DeviceProfile": {record["device"]: {}}}
+    return edges
+
+
 def upsert_and_read(cfg: dict, case_id: str, record: dict) -> dict:
     vertex = f"EXAM-{case_id}"
     attributes = {
@@ -34,15 +53,15 @@ def upsert_and_read(cfg: dict, case_id: str, record: dict) -> dict:
         "pattern": {"value": record["pattern"]},
     }
     body: dict = {"vertices": {"ExamCase": {vertex: attributes}}}
-    if record.get("card_id"):
-        body["edges"] = {
-            "ExamCase": {
-                vertex: {
-                    "ON_CARD": {"Card": {record["card_id"]: {}}},
-                }
-            }
-        }
-    _request(cfg, "", body)
+    edges = _edges(record)
+    if edges:
+        body["edges"] = {"ExamCase": {vertex: edges}}
+    try:
+        _request(cfg, "", body)
+    except GraphWriteError:
+        if not edges:
+            raise
+        _request(cfg, "", {"vertices": body["vertices"]})
     loaded = _request(cfg, f"/vertices/ExamCase/{vertex}")
     attrs = {}
     results = loaded.get("results") or []

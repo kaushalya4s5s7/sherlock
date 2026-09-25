@@ -1,63 +1,62 @@
 {
+  "case_id": "HHG-016",
   "case": {
-    "case_id": "HHG-016",
-    "decision": "legitimate",
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
     "fraud_probability": 0.1159,
     "pattern": "none",
-    "pattern_description": "No fraud pattern in this card's history.",
-    "why_not": [
-      {
-        "pattern": "card_testing",
-        "reason": "the measurement for this pattern did not fire"
-      },
-      {
-        "pattern": "card_not_present_fraud",
-        "reason": "the measurement for this pattern did not fire"
-      },
-      {
-        "pattern": "card_not_present_new_device",
-        "reason": "the measurement for this pattern did not fire"
-      },
-      {
-        "pattern": "out_of_region_use",
-        "reason": "the measurement for this pattern did not fire"
-      },
-      {
-        "pattern": "account_takeover",
-        "reason": "the measurement for this pattern did not fire"
-      }
-    ],
-    "summary": "Case HHG-016 on card C09988-K1: $59.67 online at 2016-12-11 22:39:08. No fraud pattern in this card's history. Fraud probability is 0.12. We assumed: new device, no proxy, no other cards on it, amounts look like the customer's own. Final actions: CLOSE_NO_FRAUD.",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0,
     "evidence": [
       {
-        "text": "Flagged 3534820 is $59.67 online on 2016-12-11 22:39:08.",
-        "source": "transaction",
-        "ref": "3534820",
-        "family": "sequence",
-        "supports": "fraud"
+        "claim": "Flagged 3534820 is $59.67 online on 2016-12-11 22:39:08.",
+        "source": "graph",
+        "ref": "query:card_history",
+        "entity_ids": [
+          "3534820",
+          "C09988-K1"
+        ]
       },
       {
-        "text": "Customer report: \"Customer C09988 message: 'I never made this $59.67 purchase. Please check my card.' Refers to 3534820.\"",
-        "source": "customer_report",
-        "ref": "HHG-016",
-        "family": "customer_reply",
-        "supports": "fraud"
+        "claim": "Customer C09988 message: 'I never made this $59.67 purchase. Please check my card.' Refers to 3534820.",
+        "source": "customer",
+        "ref": "case_pack:trigger_text",
+        "entity_ids": [
+          "C09988",
+          "3534820"
+        ]
       },
       {
-        "text": "Device is a device marked New: Windows | edge 16.0.",
-        "source": "identity",
-        "ref": "3534820",
-        "family": "device",
-        "supports": "fraud"
+        "claim": "Purchase came from a device marked New: Windows | edge 16.0.",
+        "source": "graph",
+        "ref": "query:device_profile",
+        "entity_ids": [
+          "3534820"
+        ]
+      },
+      {
+        "claim": "No fraud pattern in this card's history.",
+        "source": "graph",
+        "ref": "query:pattern_window",
+        "entity_ids": [
+          "3534820"
+        ]
       }
-    ]
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case HHG-016 on card C09988-K1: $59.67 online at 2016-12-11 22:39:08. No fraud pattern in this card's history. Fraud probability is 0.12. Pattern is none. We assumed: new device, no proxy, no other cards on it, amounts look like the customer's own. Final actions: CLOSE_NO_FRAUD. When the case is still unsure and the money at risk is over 500 dollars, send it to an analyst.",
+    "written_to_graph": true,
+    "graph_case_id": "EXAM-HHG-016"
   },
   "evidence_requests": [
     {
-      "action": "VERIFY_WITH_CUSTOMER",
-      "asked": "Did you make transaction 3534820?",
-      "reply": "Yes, that was me.",
-      "resolved": true
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Yes, that was me. Assumption: new device, no proxy, no other cards on it, amounts look like the customer's own."
     }
   ],
   "next_best_actions": {
@@ -65,31 +64,33 @@
       {
         "action": "VERIFY_WITH_CUSTOMER",
         "route": "auto",
-        "target": "C09988-K1"
+        "reason": "R1: one weak signal, so verify before any block"
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "target": "HHG-016"
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
       }
     ],
     "final": [
       {
         "action": "CLOSE_NO_FRAUD",
         "route": "auto",
-        "target": "C09988"
+        "reason": "R3: the customer confirmed, or the history does not support fraud"
       }
     ],
     "what_changed": "After the assumed reply (confirm), actions moved from VERIFY_WITH_CUSTOMER, CREATE_CASE to CLOSE_NO_FRAUD. new device, no proxy, no other cards on it, amounts look like the customer's own."
   },
-  "sar": null,
-  "stop_reason": {
-    "reason": "verification_resolved",
-    "explanation": "The simulated reply settled the case, so another lookup would not change the action. Drop the customer reply evidence and the action list changes. That family is the point of commitment."
+  "sar": {
+    "file": false,
+    "reason": "FILE_REPORT is not in the final actions.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
   },
-  "tool_calls": 6,
+  "stop_reason": "The simulated reply settled the case, so another lookup would not change the action. The summary used the evidence claims because the language model did not return a usable rewrite. Drop the customer reply evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 11,
   "tokens": 0,
-  "latency_s": 0.012,
-  "graph_case_id": "EXAM-HHG-016",
-  "written_to_graph": false
+  "latency_s": 205.625
 }

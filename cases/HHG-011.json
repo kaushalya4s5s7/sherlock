@@ -115,7 +115,7 @@
       "CC-2673"
     ],
     "summary": "Case HHG-011 on card C11923-K2: $131.30 online at 2016-12-29 03:27:44. A burst of online purchases from a new device that is also a proxy or shared with another card. Fraud probability is 0.76. Pattern is card_not_present_new_device. Final actions: CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS, ESCALATE_TO_ANALYST.",
-    "written_to_graph": false,
+    "written_to_graph": true,
     "graph_case_id": "EXAM-HHG-011"
   },
   "evidence_requests": [],
@@ -183,8 +183,8 @@
       "2016-12-29"
     ]
   },
-  "stop_reason": "Further lookups would not change the action list. Control gates used the deterministic fallback. The summary used the evidence claims because the language-model key was not used. Drop the device evidence and the action list changes. That family is the point of commitment.",
-  "tool_calls": 9,
+  "stop_reason": "Further lookups would not change the action list. Control gates used the deterministic fallback. The summary used the evidence claims because the language model did not return a usable rewrite. Drop the device evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 11,
   "tokens": 0,
   "latency_s": 0.0
 }

@@ -194,7 +194,7 @@ def build(
         "next_best_actions": {"initial": initial, "final": final, "what_changed": what},
         "sar": sar,
         "stop_reason": stop_text + " " + commit["text"],
-        "tool_calls": 6,
+        "tool_calls": 0,
         "tokens": 0,
         "latency_s": 0.0,
     }

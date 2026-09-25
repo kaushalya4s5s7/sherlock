@@ -1,5 +1,13 @@
+import pytest
+
 from language.public import service
 from language.public.service import draft_summary
+
+
+@pytest.fixture(autouse=True)
+def offline(monkeypatch):
+    for name in ("LANGUAGE_API_KEY", "LANGUAGE_BASE_URL", "LANGUAGE_MODEL"):
+        monkeypatch.delenv(name, raising=False)
 
 
 def _measured():
@@ -51,3 +59,18 @@ def test_model_text_keeps_every_ref(monkeypatch):
     assert len(drafted["sentences"]) == claims_holder["n"]
     assert all(row["text"].startswith("Reworded.") for row in drafted["sentences"])
     assert all(row["claim"] for row in drafted["sentences"])
+
+
+def test_fenced_model_json_keeps_every_ref(monkeypatch):
+    def fake_complete(cfg, messages):
+        import json
+
+        body = json.loads(messages[1]["content"])
+        rewritten = [{"ref": row["ref"], "text": "Reworded. " + row["text"]} for row in body["sentences"]]
+        return "```json\n" + json.dumps({"sentences": rewritten}) + "\n```", 12
+
+    monkeypatch.setattr(service, "model", lambda: {"key": "test", "base_url": "http://example/v1", "name": "test-model"})
+    monkeypatch.setattr(service, "complete", fake_complete)
+    drafted = draft_summary(_measured(), "none", "No fraud pattern.", 0.2, [{"action": "MONITOR_CARD"}], None)
+    assert drafted["fallback"] is False
+    assert drafted["tokens"] == 12

@@ -1,4 +1,12 @@
+import pytest
+
 from control import hop, pattern_gate, sentences
+
+
+@pytest.fixture(autouse=True)
+def offline(monkeypatch):
+    for name in ("JEV_API_URL", "JEV_API_KEY", "JEV_MODEL_VERSION", "BEATAPI_API_KEY"):
+        monkeypatch.delenv(name, raising=False)
 
 
 def test_hop_fallback_is_none():

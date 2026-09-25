@@ -71,6 +71,25 @@ def test_crash_after_pass1_asks_once(tmp_path, monkeypatch):
     assert again["answer"]["case"]["graph_case_id"] == "EXAM-HHG-001"
 
 
+def test_trace_counts_the_queries_and_names_the_decision(tmp_path, monkeypatch):
+    _isolate(tmp_path, monkeypatch)
+    index = _index()
+    run(_case(), index, stop_after="pass1")
+    parked = resume("HHG-001", index)
+    trace = parked["demo"]["trace"]
+    pack = [step for step in trace["execution"] if step.startswith("Measurement pack:")]
+    assert pack and "txn_and_card" in pack[0] and "exposure_episode" in pack[0]
+    assert "Hop: none" in trace["execution"]
+    assert parked["answer"]["tool_calls"] == 10
+    assert trace["diagnosis"]["kind"] in {"decision", "trajectory", "context", "execution"}
+    assert trace["anomaly"]
+
+    waiting = [a["action"] for a in parked["answer"]["next_best_actions"]["final"] if a["route"] != "auto"]
+    finished = resume("HHG-001", index, action=waiting[0])
+    assert finished["answer"]["tool_calls"] == 11
+    assert any(step.startswith("Written to the graph") for step in finished["demo"]["trace"]["execution"])
+
+
 def test_approve_rejects_an_action_outside_final(tmp_path, monkeypatch):
     _isolate(tmp_path, monkeypatch)
     index = _index()

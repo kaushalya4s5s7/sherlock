@@ -1,5 +1,18 @@
 export type Action = { action: string; route: string; reason: string };
 
+export type ClosedCase = {
+  case_id: string;
+  customer_id: string;
+  card_id: string;
+  outcome: string;
+  pattern: string;
+  txn_ids: string[];
+  connected: string[];
+  exposure_usd: number;
+  actions: string[];
+  notes: string;
+};
+
 export type CaseRow = {
   case_id: string;
   customer_id: string;
@@ -22,6 +35,7 @@ export type Investigation = {
       pattern_description: string;
       exposure_usd: number;
       evidence: { claim: string; source: string; ref: string; entity_ids: string[] }[];
+      connected_card_ids?: string[];
       similar_prior_cases: string[];
       summary: string;
       written_to_graph: boolean;
@@ -59,10 +73,18 @@ export type Investigation = {
     };
     approved?: string[];
     approval: string;
+    connected?: string[];
     hop?: string;
+    why_not?: { pattern: string; reason: string }[];
     control_fallback?: boolean;
     language_fallback?: boolean;
     memory_matched?: boolean;
     pattern_description: string;
+    trace?: {
+      result: string;
+      execution: string[];
+      anomaly: string;
+      diagnosis: { kind: string; title: string; because: string };
+    };
   };
 };

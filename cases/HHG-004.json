@@ -18,10 +18,10 @@
     ],
     "first_suspicious_txn_id": "3580804",
     "connected_card_ids": [
-      "C03095-K2",
-      "C05031-K2",
+      "C04248-K2",
       "C07518-K2",
-      "C04248-K2"
+      "C03095-K2",
+      "C05031-K2"
     ],
     "connected_device_profiles": [
       "firefox 47.0"
@@ -59,10 +59,10 @@
         "source": "graph",
         "ref": "query:device_neighbors",
         "entity_ids": [
-          "C03095-K2",
-          "C05031-K2",
+          "C04248-K2",
           "C07518-K2",
-          "C04248-K2"
+          "C03095-K2",
+          "C05031-K2"
         ]
       },
       {
@@ -102,10 +102,10 @@
         "source": "graph",
         "ref": "query:component_cards",
         "entity_ids": [
-          "C03095-K2",
-          "C05031-K2",
+          "C04248-K2",
           "C07518-K2",
-          "C04248-K2"
+          "C03095-K2",
+          "C05031-K2"
         ]
       }
     ],
@@ -116,7 +116,7 @@
       "CC-3778"
     ],
     "summary": "Case HHG-004 on card C08106-K1: $128.33 online at 2016-12-29 01:53:54. A burst of online purchases from a new device that is also a proxy or shared with another card. Fraud probability is 0.72. Pattern is card_not_present_new_device. Final actions: CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS.",
-    "written_to_graph": false,
+    "written_to_graph": true,
     "graph_case_id": "EXAM-HHG-004"
   },
   "evidence_requests": [],
@@ -160,14 +160,14 @@
   "sar": {
     "file": true,
     "reason": "R6: a distinctive device is shared with a confirmed fraud case",
-    "narrative": "Customer C08106 used card C08106-K1. A burst of online purchases from a new device that is also a proxy or shared with another card. The flagged transaction is 3583227 for $128.33 on 2016-12-29 01:53:54, channel online, billing region not recorded. The device profile is firefox 47.0. The same profile appears on cards C03095-K2, C05031-K2, C07518-K2, C04248-K2. Suspicious amount on the affected transactions is $128.33. The report is filed because the final action list includes FILE_REPORT. Closed cases guided the search and are not treated as proof by themselves.",
+    "narrative": "Customer C08106 used card C08106-K1. A burst of online purchases from a new device that is also a proxy or shared with another card. The flagged transaction is 3583227 for $128.33 on 2016-12-29 01:53:54, channel online, billing region not recorded. The device profile is firefox 47.0. The same profile appears on cards C04248-K2, C07518-K2, C03095-K2, C05031-K2. Suspicious amount on the affected transactions is $128.33. The report is filed because the final action list includes FILE_REPORT. Closed cases guided the search and are not treated as proof by themselves.",
     "subjects": [
       "C08106",
       "C08106-K1",
+      "C04248-K2",
+      "C07518-K2",
       "C03095-K2",
       "C05031-K2",
-      "C07518-K2",
-      "C04248-K2",
       "firefox 47.0"
     ],
     "total_amount_usd": 128.33,
@@ -176,8 +176,8 @@
       "2016-12-29"
     ]
   },
-  "stop_reason": "Further lookups would not change the action list. Control gates used the deterministic fallback. The summary used the evidence claims because the language-model key was not used. Drop the device evidence and the action list changes. That family is the point of commitment.",
-  "tool_calls": 9,
+  "stop_reason": "Further lookups would not change the action list. The summary used the evidence claims because the language model did not return a usable rewrite. Drop the device evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 11,
   "tokens": 0,
-  "latency_s": 0.071
+  "latency_s": 0.0
 }

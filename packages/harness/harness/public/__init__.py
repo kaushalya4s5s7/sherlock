@@ -1,3 +1,3 @@
-from harness.public.service import resume, run
+from harness.public.service import progress, resume, run, saved, saved_verdicts
 
-__all__ = ["run"]
+__all__ = ["progress", "resume", "run", "saved", "saved_verdicts"]

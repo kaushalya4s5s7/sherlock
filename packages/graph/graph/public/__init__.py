@@ -1,3 +1,3 @@
-from graph.public.service import measurement_pack, second_hop
+from graph.public.service import measure, measurement_pack, second_hop
 
-__all__ = ["measurement_pack", "second_hop"]
+__all__ = ["measure", "measurement_pack", "second_hop"]

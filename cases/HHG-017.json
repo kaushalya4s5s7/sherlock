@@ -1,0 +1,100 @@
+{
+  "case_id": "HHG-017",
+  "case": {
+    "status": "open",
+    "verdict": "uncertain",
+    "fraud_probability": 0.4211,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3450436",
+      "3450503",
+      "3450629"
+    ],
+    "first_suspicious_txn_id": "3450436",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "Windows | Windows 10 | chrome 65.0 | 1920x1080"
+    ],
+    "exposure_usd": 300.14,
+    "evidence": [
+      {
+        "claim": "Flagged 3450629 is $100.09 online on 2016-11-11 23:46:24.",
+        "source": "graph",
+        "ref": "query:card_history",
+        "entity_ids": [
+          "3450629",
+          "C04570-K1"
+        ]
+      },
+      {
+        "claim": "Model risk score on this row is 0.57. The score is a prior, not a finding.",
+        "source": "document",
+        "ref": "case_pack:risk_score",
+        "entity_ids": [
+          "3450629"
+        ]
+      },
+      {
+        "claim": "Purchase came from a device: Windows | Windows 10 | chrome 65.0 | 1920x1080.",
+        "source": "graph",
+        "ref": "query:device_profile",
+        "entity_ids": [
+          "3450629"
+        ]
+      },
+      {
+        "claim": "Online purchase from a proxy or a device shared with a confirmed case.",
+        "source": "graph",
+        "ref": "query:pattern_window",
+        "entity_ids": [
+          "3450629"
+        ]
+      },
+      {
+        "claim": "Prior CC-1383 was cleared (none). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-1383"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-1383"
+    ],
+    "summary": "Case HHG-017 on card C04570-K1: $100.09 online at 2016-11-11 23:46:24. Online purchase from a proxy or a device shared with a confirmed case. Fraud probability is 0.42. Pattern is card_not_present_fraud. Final actions: CREATE_CASE. A customer dispute that matches a regular charge is a warning and an open case. It is not a block.",
+    "written_to_graph": true,
+    "graph_case_id": "EXAM-HHG-017"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "FILE_REPORT is not in the final actions.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Further lookups would not change the action list. The summary used the evidence claims because the language model did not return a usable rewrite. Drop the device evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 11,
+  "tokens": 0,
+  "latency_s": 140.894
+}

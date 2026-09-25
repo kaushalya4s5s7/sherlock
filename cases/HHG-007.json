@@ -1,0 +1,108 @@
+{
+  "case_id": "HHG-007",
+  "case": {
+    "status": "open",
+    "verdict": "uncertain",
+    "fraud_probability": 0.5989,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3514948"
+    ],
+    "first_suspicious_txn_id": "3514948",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Flagged 3514948 is $111.92 in person on 2016-12-05 00:46:14.",
+        "source": "graph",
+        "ref": "query:card_history",
+        "entity_ids": [
+          "3514948",
+          "C09933-K2"
+        ]
+      },
+      {
+        "claim": "Model risk score on this row is 0.87. The score is a prior, not a finding.",
+        "source": "document",
+        "ref": "case_pack:risk_score",
+        "entity_ids": [
+          "3514948"
+        ]
+      },
+      {
+        "claim": "In-person purchase in region 264.0, which this card has used before.",
+        "source": "graph",
+        "ref": "query:pattern_window",
+        "entity_ids": [
+          "3514948"
+        ]
+      },
+      {
+        "claim": "Prior CC-1228 was confirmed_fraud (account_takeover). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-1228"
+        ]
+      },
+      {
+        "claim": "Prior CC-4196 was confirmed_fraud (out_of_region_use). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-4196"
+        ]
+      },
+      {
+        "claim": "Prior CC-2565 was confirmed_fraud (out_of_region_use). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-2565"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-1228",
+      "CC-4196",
+      "CC-2565",
+      "CC-0104",
+      "CC-1524"
+    ],
+    "summary": "Case HHG-007 on card C09933-K2: $111.92 in person at 2016-12-05 00:46:14. In-person purchase in region 264.0, which this card has used before. Fraud probability is 0.60. Pattern is none. Final actions: CREATE_CASE. A shape the five named patterns do not cover stays undocumented. Describe it. Do not rename it.",
+    "written_to_graph": true,
+    "graph_case_id": "EXAM-HHG-007"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "FILE_REPORT is not in the final actions.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Further lookups would not change the action list. The summary used the evidence claims because the language model did not return a usable rewrite. Drop the prior case evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 11,
+  "tokens": 0,
+  "latency_s": 143.132
+}

@@ -14,7 +14,7 @@ function triggerLine(row: CaseRow) {
   return row.risk_score ? `Risk score ${row.risk_score}` : "Risk score";
 }
 
-export function Board({ onOpen }: { onOpen: (id: string) => void }) {
+export function Board({ onOpen, onGuide }: { onOpen: (id: string) => void; onGuide: () => void }) {
   const [rows, setRows] = useState<CaseRow[]>([]);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
@@ -59,7 +59,12 @@ export function Board({ onOpen }: { onOpen: (id: string) => void }) {
       {error && <p className="error">{error}</p>}
       <section>
         <div className="section-head">
-          <h2>New alerts</h2>
+          <div className="section-title">
+            <h2>New alerts</h2>
+            <button type="button" className="ghost" onClick={onGuide}>
+              How this works
+            </button>
+          </div>
           <span>{ready ? alerts.length : ""}</span>
         </div>
         <ul className="table">

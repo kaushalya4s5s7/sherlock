@@ -1,0 +1,119 @@
+{
+  "case_id": "HHG-006",
+  "case": {
+    "status": "escalated",
+    "verdict": "fraud",
+    "fraud_probability": 0.5748,
+    "pattern": "undocumented",
+    "pattern_description": "4 online purchases between $400 and $500 inside 40 minutes. That shape is not one of the five named patterns.",
+    "affected_txn_ids": [
+      "3476602",
+      "3476633",
+      "3476665",
+      "3476682"
+    ],
+    "first_suspicious_txn_id": "3476602",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080"
+    ],
+    "exposure_usd": 1906.07,
+    "evidence": [
+      {
+        "claim": "Flagged 3476682 is $482.12 online on 2016-11-21 20:30:00.",
+        "source": "graph",
+        "ref": "query:card_history",
+        "entity_ids": [
+          "3476682",
+          "C07297-K1"
+        ]
+      },
+      {
+        "claim": "Customer C07297 message: 'I never made this $482.12 purchase. Please check my card.' Refers to 3476682.",
+        "source": "customer",
+        "ref": "case_pack:trigger_text",
+        "entity_ids": [
+          "C07297",
+          "3476682"
+        ]
+      },
+      {
+        "claim": "Purchase came from a device marked New: Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080.",
+        "source": "graph",
+        "ref": "query:device_profile",
+        "entity_ids": [
+          "3476682"
+        ]
+      },
+      {
+        "claim": "4 online purchases between $400 and $500 inside 40 minutes. That shape is not one of the five named patterns.",
+        "source": "graph",
+        "ref": "query:pattern_window",
+        "entity_ids": [
+          "3476682"
+        ]
+      }
+    ],
+    "similar_prior_cases": [],
+    "summary": "Case HHG-006 on card C07297-K1: $482.12 online at 2016-11-21 20:30:00. 4 online purchases between $400 and $500 inside 40 minutes. That shape is not one of the five named patterns. Fraud probability is 0.57. Pattern is undocumented. Final actions: CREATE_CASE, FILE_REPORT, ESCALATE_TO_ANALYST.",
+    "written_to_graph": true,
+    "graph_case_id": "EXAM-HHG-006"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R9: coordinated activity with no named pattern"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: a person should see an unnamed pattern"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R9: coordinated activity with no named pattern"
+      },
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R9: a person should see an unnamed pattern"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": true,
+    "reason": "R9: coordinated activity with no named pattern",
+    "narrative": "Customer C07297 used card C07297-K1. 4 online purchases between $400 and $500 inside 40 minutes. That shape is not one of the five named patterns. The flagged transaction is 3476682 for $482.12 on 2016-11-21 20:30:00, channel online, billing region 264.0. The device profile is Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080. Suspicious amount on the affected transactions is $482.12. The report is filed because the final action list includes FILE_REPORT. Closed cases guided the search and are not treated as proof by themselves.",
+    "subjects": [
+      "C07297",
+      "C07297-K1",
+      "Trident/7.0 | Windows 7 | ie 11.0 for desktop | 1920x1080"
+    ],
+    "total_amount_usd": 482.12,
+    "activity_dates": [
+      "2016-11-21",
+      "2016-11-21"
+    ]
+  },
+  "stop_reason": "The undocumented pattern is a hard stop: open, report, escalate, and write the shape in our own words. The summary used the evidence claims because the language model did not return a usable rewrite. Drop the sequence evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 12,
+  "tokens": 0,
+  "latency_s": 0.0
+}

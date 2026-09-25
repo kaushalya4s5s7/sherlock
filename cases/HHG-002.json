@@ -52,7 +52,7 @@
       "CC-4160"
     ],
     "summary": "Case HHG-002 on card C11891-K1: $292.36 online at 2016-11-22 17:27:07. No fraud pattern in this card's history. Fraud probability is 0.72. Pattern is none. Final actions: CREATE_CASE.",
-    "written_to_graph": false,
+    "written_to_graph": true,
     "graph_case_id": "EXAM-HHG-002"
   },
   "evidence_requests": [],
@@ -81,8 +81,8 @@
     "total_amount_usd": 0,
     "activity_dates": []
   },
-  "stop_reason": "Further lookups would not change the action list. Control gates used the deterministic fallback. The summary used the evidence claims because the language-model key was not used. No single family changes the action list on its own. The decision is the combination.",
-  "tool_calls": 8,
+  "stop_reason": "Further lookups would not change the action list. The summary used the evidence claims because the language model did not return a usable rewrite. No single family changes the action list on its own. The decision is the combination.",
+  "tool_calls": 10,
   "tokens": 0,
-  "latency_s": 0.039
+  "latency_s": 154.003
 }

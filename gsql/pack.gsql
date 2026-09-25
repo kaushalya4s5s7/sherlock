@@ -1,0 +1,126 @@
+-- Installed measurement pack for graph HHGOA.
+-- Edge steps use one syntax so a reverse hop does not fail the install.
+
+CREATE OR REPLACE QUERY txn_and_card(VERTEX<Transaction> seed) FOR GRAPH HHGOA {
+  Start = {seed};
+  Cards = SELECT c FROM Start:s -(TXN_ON_CARD>:e)- BankCard:c;
+  PRINT Start, Cards;
+}
+
+CREATE OR REPLACE QUERY card_window(VERTEX<Transaction> seed) FOR GRAPH HHGOA {
+  Start = {seed};
+  Cards = SELECT c FROM Start:s -(TXN_ON_CARD>:e)- BankCard:c;
+  Window = SELECT t FROM Cards:c -(<TXN_ON_CARD:e)- Transaction:t;
+  PRINT Window;
+}
+
+CREATE OR REPLACE QUERY device_profile(VERTEX<Transaction> seed) FOR GRAPH HHGOA {
+  Start = {seed};
+  Dev = SELECT d FROM Start:s -(FROM_DEVICE>:e)- DeviceProfile:d;
+  PRINT Dev;
+}
+
+CREATE OR REPLACE QUERY device_neighbors(VERTEX<Transaction> seed) FOR GRAPH HHGOA {
+  SetAccum<STRING> @@customers;
+  SetAccum<STRING> @@cards;
+  Start = {seed};
+  Dev = SELECT d FROM Start:s -(FROM_DEVICE>:e)- DeviceProfile:d;
+  Others = SELECT t FROM Dev:d -(<FROM_DEVICE:e)- Transaction:t
+           WHERE t != seed
+           ACCUM @@customers += t.customer_id;
+  Nbr = SELECT c FROM Others:t -(TXN_ON_CARD>:e)- BankCard:c
+        ACCUM @@cards += c.id;
+  PRINT @@customers, @@cards;
+}
+
+CREATE OR REPLACE QUERY region_history(VERTEX<Transaction> seed) FOR GRAPH HHGOA {
+  SetAccum<STRING> @@addrs;
+  Start = {seed};
+  Cards = SELECT c FROM Start:s -(TXN_ON_CARD>:e)- BankCard:c;
+  Prior = SELECT t FROM Cards:c -(<TXN_ON_CARD:e)- Transaction:t
+          WHERE t.ts < seed.ts AND t.addr != ""
+          ACCUM @@addrs += t.addr;
+  PRINT @@addrs;
+}
+
+CREATE OR REPLACE QUERY recurring_match(VERTEX<Transaction> seed) FOR GRAPH HHGOA {
+  ListAccum<STRING> @@hits;
+  Start = {seed};
+  DOUBLE band = seed.amount * 0.03;
+  IF band < 1.0 THEN band = 1.0; END;
+  Cards = SELECT c FROM Start:s -(TXN_ON_CARD>:e)- BankCard:c;
+  Hits = SELECT t FROM Cards:c -(<TXN_ON_CARD:e)- Transaction:t
+         WHERE t != seed AND abs(t.amount - seed.amount) <= band
+         ACCUM @@hits += t.id + "|" + t.ts + "|" + to_string(t.amount);
+  PRINT @@hits;
+}
+
+CREATE OR REPLACE QUERY prior_cases(VERTEX<Transaction> seed) FOR GRAPH HHGOA {
+  Start = {seed};
+  Cards = SELECT c FROM Start:s -(TXN_ON_CARD>:e)- BankCard:c;
+  Dev = SELECT d FROM Start:s -(FROM_DEVICE>:e)- DeviceProfile:d;
+  Others = SELECT t FROM Dev:d -(<FROM_DEVICE:e)- Transaction:t WHERE t != seed;
+  Nbr = SELECT c FROM Others:t -(TXN_ON_CARD>:e)- BankCard:c;
+  Mine = SELECT k FROM Cards:c -(<CASE_ON_CARD:e)- ClosedCase:k;
+  Linked = SELECT k FROM Nbr:c -(<CASE_ON_CARD:e)- ClosedCase:k;
+  PRINT Mine, Linked;
+}
+
+CREATE OR REPLACE QUERY exposure_episode(VERTEX<Transaction> seed) FOR GRAPH HHGOA {
+  ListAccum<STRING> @@ids;
+  Start = {seed};
+  Cards = SELECT c FROM Start:s -(TXN_ON_CARD>:e)- BankCard:c;
+  Episode = SELECT t FROM Cards:c -(<TXN_ON_CARD:e)- Transaction:t
+            ACCUM @@ids += t.id;
+  PRINT @@ids;
+}
+
+CREATE OR REPLACE QUERY component_cards(VERTEX<Transaction> seed) FOR GRAPH HHGOA {
+  SetAccum<STRING> @@cards;
+  Start = {seed};
+  Dev = SELECT d FROM Start:s -(FROM_DEVICE>:e)- DeviceProfile:d;
+  Others = SELECT t FROM Dev:d -(<FROM_DEVICE:e)- Transaction:t WHERE t != seed;
+  Nbr = SELECT c FROM Others:t -(TXN_ON_CARD>:e)- BankCard:c
+        ACCUM @@cards += c.id;
+  PRINT Dev, @@cards;
+}
+
+CREATE OR REPLACE QUERY identity_flag(STRING seed) FOR GRAPH HHGOA {
+  Start = {IdentityFlag.*};
+  Found = SELECT f FROM Start:f WHERE f.id == seed;
+  PRINT Found;
+}
+
+CREATE OR REPLACE QUERY policy_passage(VERTEX<PolicyNote> note) FOR GRAPH HHGOA {
+  Start = {note};
+  PRINT Start;
+}
+
+CREATE OR REPLACE QUERY community_lookup(VERTEX<BankCard> card) FOR GRAPH HHGOA {
+  Start = {card};
+  PRINT Start;
+}
+
+CREATE OR REPLACE QUERY card_community(VERTEX<BankCard> card) FOR GRAPH HHGOA {
+  SetAccum<STRING> @@cards;
+  SetAccum<STRING> @seen;
+  Start = {card};
+  Tx = SELECT t FROM Start:s -(<TXN_ON_CARD:e)- Transaction:t;
+  Dev = SELECT d FROM Tx:t -(FROM_DEVICE>:e)- DeviceProfile:d;
+  Back = SELECT t FROM Dev:d -(<FROM_DEVICE:e)- Transaction:t
+         ACCUM d.@seen += t.id;
+  Small = SELECT d FROM Dev:d WHERE d.@seen.size() >= 2 AND d.@seen.size() <= 12;
+  Others = SELECT t FROM Small:d -(<FROM_DEVICE:e)- Transaction:t;
+  Nbr = SELECT c FROM Others:t -(TXN_ON_CARD>:e)- BankCard:c
+        WHERE c != card
+        ACCUM @@cards += c.id;
+  PRINT @@cards;
+}
+
+CREATE OR REPLACE QUERY policy_vector_search(LIST<FLOAT> query_vector, INT k) FOR GRAPH HHGOA SYNTAX V3 {
+  MapAccum<VERTEX, FLOAT> @@distances;
+  Found = vectorSearch({PolicyNote.vec}, query_vector, k, {distance_map: @@distances, ef: 16});
+  PRINT Found;
+  PRINT @@distances;
+}
+

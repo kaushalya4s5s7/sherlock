@@ -2,10 +2,25 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 from graph.private.local_index import GraphIndex
+
+# Same pack on every case. The harness counts these as the graph calls.
+PACK_QUERIES = (
+    "txn_and_card",
+    "card_window",
+    "device_profile",
+    "device_neighbors",
+    "region_history",
+    "recurring_match",
+    "prior_cases",
+    "exposure_episode",
+)
+
 
 def _parse(ts: str) -> datetime:
     return datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
@@ -136,7 +151,86 @@ def measurement_pack(case: dict, index: GraphIndex) -> dict[str, Any]:
         "reply": None,
         "trigger": case["trigger_type"],
         "report": (case.get("trigger_text") or "").strip() if case["trigger_type"] == "customer_report" else "",
+        "queries_run": [{"name": name, "kind": "pack"} for name in PACK_QUERIES],
     }
+
+
+def measure(case: dict, index: GraphIndex) -> dict[str, Any]:
+    """Installed queries when the cluster has them. The local index otherwise."""
+    from graph.private.installed import live_measure, live_ready
+
+    if live_ready():
+        measured = live_measure(case)
+    else:
+        measured = measurement_pack(case, index)
+    query = " ".join(
+        part
+        for part in (
+            measured.get("profile") or "",
+            "new device" if measured.get("new_device") else "",
+            "proxy" if measured.get("proxy") else "",
+            "card testing" if measured.get("testing") else "",
+            "shared device" if measured.get("shared_confirmed") else "",
+            "recurring" if measured.get("recurring") else "",
+            (measured.get("case") or {}).get("trigger_text") or "",
+        )
+        if part
+    )
+    note_id, text = _policy(query)
+    measured["policy_context"] = text
+    measured["policy_note"] = note_id
+    measured.setdefault("queries_run", []).append({"name": "search_policy", "kind": "document"})
+    return measured
+
+
+def _policy(query: str) -> tuple[str, str]:
+    import json
+    import os
+    from urllib.request import Request, urlopen
+
+    from graph.private.installed import live_ready
+
+    if live_ready():
+        try:
+            from graph.private.installed import policy_by_vector
+
+            note_id, text, _score = policy_by_vector(query or "policy")
+            if text:
+                return note_id or "policy_default", text
+        except RuntimeError:
+            pass
+    mcp = os.environ.get("TG_MCP_URL", "").strip()
+    if mcp:
+        payload = json.dumps(
+            {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/call",
+                "params": {"name": "search_policy", "arguments": {"text": query or "policy"}},
+            }
+        ).encode()
+        try:
+            with urlopen(Request(mcp, data=payload, headers={"Content-Type": "application/json"}), timeout=20) as response:
+                body = json.loads(response.read().decode() or "{}")
+            result = body.get("result") or {}
+            if result.get("body"):
+                return result.get("note_id") or "policy_default", result["body"]
+        except Exception:
+            pass
+    from graph.private.vectors import NOTES, rank
+
+    note_id, text, _score = rank(query or "policy", NOTES)
+    return note_id, text
+
+
+def _community(card_id: str) -> dict | None:
+    if not card_id:
+        return None
+    for parent in Path(__file__).resolve().parents:
+        file = parent / "runs" / "community.json"
+        if file.is_file():
+            return json.loads(file.read_text()).get(card_id)
+    return None
 
 
 def _similar_row(case_row) -> dict[str, Any]:
@@ -150,17 +244,26 @@ def _similar_row(case_row) -> dict[str, Any]:
 
 
 def _policy_passage(index: GraphIndex, case: dict) -> dict[str, Any]:
-    """One cited paragraph. Local stand-in for the policy vector index."""
+    """One cited paragraph from the policy notes stored on the graph."""
     flagged = index.txns.get(case["flagged_txn_id"])
     profile = ""
     if flagged:
         profile = index.identity.get(flagged[0], ("", "", ""))[0]
-    if profile and "SM-G935F" in profile:
+    note_id = "policy_shared_device" if profile and "SM-G935F" in profile else "policy_default"
+    text = ""
+    from graph.private.installed import live_ready, policy_text
+
+    if live_ready():
+        try:
+            text = policy_text(note_id)
+        except RuntimeError:
+            text = ""
+    if not text and note_id == "policy_shared_device":
         text = (
             "The known patterns are not the only ones in the data. "
             "A device profile shared across many cards is worth a look, and some cases are solved only by asking what happened on other cards."
         )
-    else:
+    if not text:
         text = (
             "These are the patterns the bank's analysts recognize. They are not the only patterns in the data. "
             "Noticing activity that fits none of them, and describing it, is part of the investigation."
@@ -182,9 +285,41 @@ def second_hop(hop: str, case: dict, index: GraphIndex) -> dict[str, Any]:
     if hop == "policy_passage":
         return _policy_passage(index, case)
     if hop == "community_lookup":
+        from graph.private.installed import live_ready
+
+        if live_ready():
+            try:
+                from graph.private.installed import card_community
+
+                cards = card_community(case.get("card_id") or "")
+                if cards:
+                    return {
+                        "hop": "community_lookup",
+                        "claim": (
+                            f"The graph walk from this card reaches {len(cards)} other cards "
+                            "through a shared device."
+                        ),
+                        "entity_ids": cards[:8],
+                        "ref": "query:card_community",
+                        "source": "graph",
+                    }
+            except RuntimeError:
+                pass
+        row = _community(case.get("card_id") or "")
+        if not row:
+            return {
+                "hop": "community_lookup",
+                "claim": "No community id is stored on this card. The offline community pass has not seen this card in a shared-device group.",
+                "entity_ids": [],
+                "ref": "query:community_lookup",
+                "source": "graph",
+            }
         return {
             "hop": "community_lookup",
-            "claim": "No community id is stored on this card. Louvain runs offline and was not on this vertex.",
+            "claim": (
+                f"Community {row['community_id']} has {row['cards']} cards on a shared device, "
+                f"{row['confirmed']} of them in a confirmed case."
+            ),
             "entity_ids": [],
             "ref": "query:community_lookup",
             "source": "graph",

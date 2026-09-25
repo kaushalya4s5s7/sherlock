@@ -36,6 +36,8 @@ def _record(case_id: str, answer: dict, card_id: str, device: str) -> dict:
         "sar_file": bool(answer["sar"] and answer["sar"].get("file")),
         "card_id": card_id,
         "device": device,
+        "connected": list(answer["case"].get("connected_card_ids") or []),
+        "txn_ids": list(answer["case"].get("affected_txn_ids") or []),
     }
 
 

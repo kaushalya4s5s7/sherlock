@@ -1,91 +1,117 @@
 {
+  "case_id": "HHG-015",
   "case": {
-    "case_id": "HHG-015",
-    "decision": "fraud",
+    "status": "escalated",
+    "verdict": "fraud",
     "fraud_probability": 0.9431,
     "pattern": "card_not_present_fraud",
-    "pattern_description": "Online purchase from a proxy or a device shared with a confirmed case.",
-    "why_not": [
-      {
-        "pattern": "card_testing",
-        "reason": "the measurement for this pattern did not fire"
-      },
-      {
-        "pattern": "card_not_present_new_device",
-        "reason": "the measurement for this pattern did not fire"
-      },
-      {
-        "pattern": "out_of_region_use",
-        "reason": "the measurement for this pattern did not fire"
-      },
-      {
-        "pattern": "account_takeover",
-        "reason": "the measurement for this pattern did not fire"
-      },
-      {
-        "pattern": "undocumented",
-        "reason": "no structuring cluster and no SM-G935F proxy ring"
-      }
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3464869"
     ],
-    "summary": "Case HHG-015 on card C03042-K1: $599.94 online at 2016-11-17 14:03:36. Online purchase from a proxy or a device shared with a confirmed case. Fraud probability is 0.94. Final actions: CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS, ESCALATE_TO_ANALYST.",
+    "first_suspicious_txn_id": "3464869",
+    "connected_card_ids": [
+      "C11227-K2",
+      "C11413-K1",
+      "C05292-K1",
+      "C05704-K2",
+      "C01155-K2"
+    ],
+    "connected_device_profiles": [
+      "Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050"
+    ],
+    "exposure_usd": 599.94,
     "evidence": [
       {
-        "text": "Flagged 3464869 is $599.94 online on 2016-11-17 14:03:36.",
-        "source": "transaction",
-        "ref": "3464869",
-        "family": "sequence",
-        "supports": "fraud"
+        "claim": "Flagged 3464869 is $599.94 online on 2016-11-17 14:03:36.",
+        "source": "graph",
+        "ref": "query:card_history",
+        "entity_ids": [
+          "3464869",
+          "C03042-K1"
+        ]
       },
       {
-        "text": "Model risk score on this row is 0.77. The score is a prior, not a finding.",
-        "source": "risk_score",
-        "ref": "3464869",
-        "family": "sequence",
-        "supports": "fraud"
+        "claim": "Model risk score on this row is 0.77. The score is a prior, not a finding.",
+        "source": "document",
+        "ref": "case_pack:risk_score",
+        "entity_ids": [
+          "3464869"
+        ]
       },
       {
-        "text": "Device is a device marked New: Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050.",
-        "source": "identity",
-        "ref": "3464869",
-        "family": "device",
-        "supports": "fraud"
+        "claim": "Purchase came from a device marked New: Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050.",
+        "source": "graph",
+        "ref": "query:device_profile",
+        "entity_ids": [
+          "3464869"
+        ]
       },
       {
-        "text": "5 other known card ids share this device.",
-        "source": "identity",
-        "ref": "Trident/7.0 | Windows 8.1 | ie 11.0 for ",
-        "family": "device",
-        "supports": "fraud"
+        "claim": "5 other known cards share this device profile.",
+        "source": "graph",
+        "ref": "query:device_neighbors",
+        "entity_ids": [
+          "C11227-K2",
+          "C11413-K1",
+          "C05292-K1",
+          "C05704-K2",
+          "C01155-K2"
+        ]
       },
       {
-        "text": "Online purchase from a proxy or a device shared with a confirmed case.",
-        "source": "transaction",
-        "ref": "3464869",
-        "family": "sequence",
-        "supports": "fraud"
+        "claim": "Online purchase from a proxy or a device shared with a confirmed case.",
+        "source": "graph",
+        "ref": "query:pattern_window",
+        "entity_ids": [
+          "3464869"
+        ]
       },
       {
-        "text": "Prior CC-0615 on a related card was confirmed_fraud (card_not_present_new_device). It guides the search. It is not proof.",
-        "source": "prior_case",
-        "ref": "CC-0615",
-        "family": "prior_case",
-        "supports": "fraud"
+        "claim": "Prior CC-3886 was confirmed_fraud (card_not_present_new_device). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-3886"
+        ]
       },
       {
-        "text": "Prior CC-1313 on a related card was cleared (none). It guides the search. It is not proof.",
-        "source": "prior_case",
-        "ref": "CC-1313",
-        "family": "prior_case",
-        "supports": "fraud"
+        "claim": "Prior CC-0615 was confirmed_fraud (card_not_present_new_device). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-0615"
+        ]
       },
       {
-        "text": "Exposure on the affected transactions is $599.94.",
-        "source": "transaction",
-        "ref": "3464869",
-        "family": "sequence",
-        "supports": "fraud"
+        "claim": "Prior CC-1313 was cleared (none). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-1313"
+        ]
+      },
+      {
+        "claim": "5 other cards share this device across 8 customers.",
+        "source": "graph",
+        "ref": "query:component_cards",
+        "entity_ids": [
+          "C01155-K2",
+          "C11413-K1",
+          "C05292-K1",
+          "C05704-K2",
+          "C11227-K2"
+        ]
       }
-    ]
+    ],
+    "similar_prior_cases": [
+      "CC-3886",
+      "CC-0615",
+      "CC-1313"
+    ],
+    "summary": "Case HHG-015 on card C03042-K1: $599.94 online at 2016-11-17 14:03:36. Online purchase from a proxy or a device shared with a confirmed case. Fraud probability is 0.94. Pattern is card_not_present_fraud. Final actions: CREATE_CASE, FILE_REPORT, MONITOR_CONNECTED_CARDS, ESCALATE_TO_ANALYST. When the case is still unsure and the money at risk is over 500 dollars, send it to an analyst.",
+    "written_to_graph": true,
+    "graph_case_id": "EXAM-HHG-015"
   },
   "evidence_requests": [],
   "next_best_actions": {
@@ -93,59 +119,69 @@
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "target": "HHG-015"
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
       },
       {
         "action": "FILE_REPORT",
-        "route": "requires_L2",
-        "target": "C03042"
+        "route": "L2",
+        "reason": "R6: a distinctive device is shared with a confirmed fraud case"
       },
       {
         "action": "MONITOR_CONNECTED_CARDS",
         "route": "auto",
-        "target": "C05704-K2,C11227-K2,C01155-K2,C05292-K1,C11413-K1"
+        "reason": "R6: watch the other cards on this device"
       },
       {
         "action": "ESCALATE_TO_ANALYST",
         "route": "auto",
-        "target": "C03042"
+        "reason": "R8: still uncertain and exposure is over $500"
       }
     ],
     "final": [
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "target": "HHG-015"
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
       },
       {
         "action": "FILE_REPORT",
-        "route": "requires_L2",
-        "target": "C03042"
+        "route": "L2",
+        "reason": "R6: a distinctive device is shared with a confirmed fraud case"
       },
       {
         "action": "MONITOR_CONNECTED_CARDS",
         "route": "auto",
-        "target": "C05704-K2,C11227-K2,C01155-K2,C05292-K1,C11413-K1"
+        "reason": "R6: watch the other cards on this device"
       },
       {
         "action": "ESCALATE_TO_ANALYST",
         "route": "auto",
-        "target": "C03042"
+        "reason": "R8: still uncertain and exposure is over $500"
       }
     ],
-    "what_changed": "The reply did not change the action list."
+    "what_changed": "nothing"
   },
   "sar": {
     "file": true,
-    "narrative": "Who: Card C03042-K1 of customer C03042 What: Online purchase from a proxy or a device shared with a confirmed case. Flagged transaction 3464869 for $599.94. When: Activity time 2016-11-17 14:03:36 (dataset clock, not wall clock). Where: Channel online, billing region 327.0. Device: Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050. Why: The action list includes FILE_REPORT, so the narrative is filed with it. How: measurements from the card history, the device profile, and closed cases. The model did not write this."
+    "reason": "R6: a distinctive device is shared with a confirmed fraud case",
+    "narrative": "Customer C03042 used card C03042-K1. Online purchase from a proxy or a device shared with a confirmed case. The flagged transaction is 3464869 for $599.94 on 2016-11-17 14:03:36, channel online, billing region 327.0. The device profile is Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050. The same profile appears on cards C11227-K2, C11413-K1, C05292-K1, C05704-K2. Suspicious amount on the affected transactions is $599.94. The report is filed because the final action list includes FILE_REPORT. Closed cases guided the search and are not treated as proof by themselves.",
+    "subjects": [
+      "C03042",
+      "C03042-K1",
+      "C11227-K2",
+      "C11413-K1",
+      "C05292-K1",
+      "C05704-K2",
+      "Trident/7.0 | Windows 8.1 | ie 11.0 for desktop | 1680x1050"
+    ],
+    "total_amount_usd": 599.94,
+    "activity_dates": [
+      "2016-11-17",
+      "2016-11-17"
+    ]
   },
-  "stop_reason": {
-    "reason": "high_confidence",
-    "explanation": "Probability is outside 0.15\u20130.85 and at least two evidence families agree. Drop the device evidence and the action list changes. That family is the point of commitment."
-  },
-  "tool_calls": 6,
+  "stop_reason": "Probability is outside 0.15\u20130.85 and at least two evidence families agree. The summary used the evidence claims because the language model did not return a usable rewrite. Drop the device evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 12,
   "tokens": 0,
-  "latency_s": 0.011,
-  "graph_case_id": "EXAM-HHG-015",
-  "written_to_graph": false
+  "latency_s": 0.0
 }

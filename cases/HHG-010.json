@@ -1,0 +1,108 @@
+{
+  "case_id": "HHG-010",
+  "case": {
+    "status": "escalated",
+    "verdict": "uncertain",
+    "fraud_probability": 0.8017,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3506725"
+    ],
+    "first_suspicious_txn_id": "3506725",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "Windows | Windows 10 | edge 16.0 | 1366x768"
+    ],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Flagged 3506725 is $1000.03 online on 2016-12-02 15:18:27.",
+        "source": "graph",
+        "ref": "query:card_history",
+        "entity_ids": [
+          "3506725",
+          "C10434-K1"
+        ]
+      },
+      {
+        "claim": "Model risk score on this row is 0.90. The score is a prior, not a finding.",
+        "source": "document",
+        "ref": "case_pack:risk_score",
+        "entity_ids": [
+          "3506725"
+        ]
+      },
+      {
+        "claim": "Purchase came from a device marked New: Windows | Windows 10 | edge 16.0 | 1366x768.",
+        "source": "graph",
+        "ref": "query:device_profile",
+        "entity_ids": [
+          "3506725"
+        ]
+      },
+      {
+        "claim": "Online purchase in a region this card already uses. No proxy and no distinctive shared device.",
+        "source": "graph",
+        "ref": "query:pattern_window",
+        "entity_ids": [
+          "3506725"
+        ]
+      },
+      {
+        "claim": "Prior CC-0873 was cleared (none). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-0873"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0873"
+    ],
+    "summary": "Case HHG-010 on card C10434-K1: $1000.03 online at 2016-12-02 15:18:27. Online purchase in a region this card already uses. No proxy and no distinctive shared device. Fraud probability is 0.80. Pattern is none. Final actions: ESCALATE_TO_ANALYST, CREATE_CASE.",
+    "written_to_graph": true,
+    "graph_case_id": "EXAM-HHG-010"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R8: still uncertain and exposure is over $500"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "final": [
+      {
+        "action": "ESCALATE_TO_ANALYST",
+        "route": "auto",
+        "reason": "R8: still uncertain and exposure is over $500"
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "FILE_REPORT is not in the final actions.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Further lookups would not change the action list. The summary used the evidence claims because the language model did not return a usable rewrite. Drop the region evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 10,
+  "tokens": 0,
+  "latency_s": 137.301
+}

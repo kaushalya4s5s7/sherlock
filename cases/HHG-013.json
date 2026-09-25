@@ -1,0 +1,117 @@
+{
+  "case_id": "HHG-013",
+  "case": {
+    "status": "open",
+    "verdict": "uncertain",
+    "fraud_probability": 0.8104,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3526826"
+    ],
+    "first_suspicious_txn_id": "3526826",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "Windows | chrome 66.0"
+    ],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Flagged 3526826 is $35.66 online on 2016-12-09 02:39:29.",
+        "source": "graph",
+        "ref": "query:card_history",
+        "entity_ids": [
+          "3526826",
+          "C07671-K2"
+        ]
+      },
+      {
+        "claim": "Model risk score on this row is 0.76. The score is a prior, not a finding.",
+        "source": "document",
+        "ref": "case_pack:risk_score",
+        "entity_ids": [
+          "3526826"
+        ]
+      },
+      {
+        "claim": "Purchase came from a device marked New: Windows | chrome 66.0.",
+        "source": "graph",
+        "ref": "query:device_profile",
+        "entity_ids": [
+          "3526826"
+        ]
+      },
+      {
+        "claim": "No fraud pattern in this card's history.",
+        "source": "graph",
+        "ref": "query:pattern_window",
+        "entity_ids": [
+          "3526826"
+        ]
+      },
+      {
+        "claim": "Prior CC-3761 was cleared (none). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-3761"
+        ]
+      },
+      {
+        "claim": "Prior CC-4294 was confirmed_fraud (account_takeover). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-4294"
+        ]
+      },
+      {
+        "claim": "Prior CC-1475 was confirmed_fraud (account_takeover). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-1475"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-3761",
+      "CC-4294",
+      "CC-1475",
+      "CC-3216"
+    ],
+    "summary": "Case HHG-013 on card C07671-K2: $35.66 online at 2016-12-09 02:39:29. No fraud pattern in this card's history. Fraud probability is 0.81. Pattern is none. Final actions: CREATE_CASE. When the case is still unsure and the money at risk is over 500 dollars, send it to an analyst.",
+    "written_to_graph": true,
+    "graph_case_id": "EXAM-HHG-013"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "FILE_REPORT is not in the final actions.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Further lookups would not change the action list. The summary used the evidence claims because the language model did not return a usable rewrite. Drop the device evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 11,
+  "tokens": 0,
+  "latency_s": 210.089
+}

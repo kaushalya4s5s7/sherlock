@@ -8,7 +8,7 @@ from answer import build
 from belief import believe, prior
 from control import hop as control_hop
 from control import pattern_gate, sentences
-from graph import measurement_pack, second_hop
+from graph import measure, second_hop
 from harness.private import checkpoint
 from intake import open_case
 from language import draft_sar, draft_summary
@@ -117,6 +117,7 @@ def _merge_hop(m: dict, extra: dict) -> None:
 
 
 def _attach_exam_memory(m: dict) -> None:
+    m.setdefault("queries_run", []).append({"name": "exam_memory", "kind": "memory"})
     card_id = m["case"]["card_id"]
     device = m.get("profile") or ""
     recalled = recall(card_id, device)
@@ -163,6 +164,85 @@ def _families(m: dict) -> int:
         )
         if flag
     )
+
+
+def _diagnosis(state: dict, result: dict) -> dict:
+    """Which kind of miss this run is, using the same four buckets as a trace review."""
+    point = result["demo"]["commitment"]
+    for claim in result["answer"]["case"]["evidence"]:
+        ref = (claim.get("ref") or "").lower()
+        broken = claim.get("source") == "graph" and not claim.get("entity_ids") and ("error" in ref or "timeout" in ref)
+        if broken:
+            return {"kind": "context", "title": "Context", "because": claim["claim"]}
+    if result["demo"].get("memory_error"):
+        return {
+            "kind": "execution",
+            "title": "Execution",
+            "because": "The case was written and the read-back did not match.",
+        }
+    if state.get("rewrite_used") and point["family"] == "none":
+        return {
+            "kind": "execution",
+            "title": "Execution",
+            "because": "A sentence was rejected and replaced with its evidence claim.",
+        }
+    if point["family"] == "none":
+        hop = state.get("hop_name") or "none"
+        extra = f" The second hop was {hop}." if state.get("hop_used") else " No second hop was taken."
+        return {
+            "kind": "trajectory",
+            "title": "Trajectory / cost",
+            "because": "No single evidence family changes the action list." + extra,
+        }
+    fired = next((rule for rule in result["demo"]["register"] if rule["fired"]), None)
+    rule = f"{fired['rule']}: {fired['because']}" if fired else point["text"]
+    family = point["family"].replace("_", " ")
+    return {
+        "kind": "decision",
+        "title": "Decision",
+        "because": f"The action depends on the {family} evidence. {rule}",
+    }
+
+
+def _trace(state: dict, result: dict) -> dict:
+    answer = result["answer"]
+    case = answer["case"]
+    final = ", ".join(item["action"] for item in answer["next_best_actions"]["final"]) or "none"
+    queries = state["measured"].get("queries_run") or []
+    pack = ", ".join(item["name"] for item in queries if item["kind"] == "pack")
+    asked = bool(state.get("ask_used") and state["measured"].get("reply"))
+    steps = [
+        "Intake: one case row",
+        f"Measurement pack: {pack}",
+        f"Pattern: {state['pattern']}",
+        f"Hop: {state['hop_name']}" if state.get("hop_used") else "Hop: none",
+        "Policy, before the reply",
+        "Reply assumed" if asked else "No customer ask",
+        "Policy, after the reply",
+        "Summary checked against the evidence",
+    ]
+    if state.get("fallback"):
+        steps.append("Control gates used the deterministic fallback")
+    if state.get("rewrite_used"):
+        steps.append("A rejected sentence was replaced with its evidence claim")
+    if state.get("language_fallback"):
+        steps.append("Summary used the evidence claims")
+    if state.get("write_counted"):
+        matched = result["demo"].get("memory_matched")
+        steps.append("Written to the graph and read back" if matched else "Graph write did not match the read-back")
+    return {
+        "result": (
+            f"{case['verdict']} at {case['fraud_probability']:.2f}. "
+            f"Exposure ${case['exposure_usd']:.2f}. Actions: {final}."
+        ),
+        "execution": steps,
+        "anomaly": result["demo"]["commitment"]["text"],
+        "diagnosis": _diagnosis(state, result),
+    }
+
+
+def _attach_trace(state: dict) -> None:
+    state["result"]["demo"]["trace"] = _trace(state, state["result"])
 
 
 def _waiting(result: dict) -> list[str]:
@@ -212,7 +292,7 @@ def _step_intake(state: dict) -> None:
 
 
 def _step_pack(state: dict, index) -> None:
-    measured = measurement_pack(state["case"], index)
+    measured = measure(state["case"], index)
     _attach_exam_memory(measured)
     state["measured"] = measured
     state["phase"] = "pattern"
@@ -227,11 +307,13 @@ def _step_pattern(state: dict, allow_fallback: bool) -> None:
             allow_fallback=allow_fallback,
         )
         state["gate_used"] = True
+        state["pattern_gate"] = gate
         state["fallback"] = state["fallback"] or gate["fallback"]
         state["why_not"] = gate["why_not"]
         if gate["label"] not in {"", "insufficient", "none"}:
             pattern = gate["label"]
     else:
+        state["pattern_gate"] = None
         state["why_not"] = why
     state["pattern"] = pattern
     state["desc"] = desc
@@ -250,12 +332,14 @@ def _step_hop(state: dict, index, allow_fallback: bool) -> None:
             },
             allow_fallback=allow_fallback,
         )
+        state["hop_decision"] = decision
         state["fallback"] = state["fallback"] or decision["fallback"]
         name = decision["query"]
         if name == "none" and _shared(measured):
             name = "component_cards"
         if name != "none":
             _merge_hop(measured, second_hop(name, state["case"], index))
+            measured.setdefault("queries_run", []).append({"name": name, "kind": "hop"})
             state["hop_used"] = True
             state["hop_name"] = name
             pattern, desc, _why = pattern_of(measured)
@@ -346,7 +430,7 @@ def _step_prose(state: dict, allow_fallback: bool) -> None:
         sar["narrative"] = narrative
     sar = {key: value for key, value in sar.items() if key not in {"sentences", "fallback", "tokens"}}
     if language_fallback:
-        stop_text += " The summary used the evidence claims because the language-model key was not used."
+        stop_text += " The summary used the evidence claims because the language model did not return a usable rewrite."
     state["language_fallback"] = language_fallback
     result = build(
         state["case"],
@@ -368,7 +452,7 @@ def _step_prose(state: dict, allow_fallback: bool) -> None:
         _counterfactuals(measured, pattern),
         written_to_graph=False,
     )
-    result["answer"]["tool_calls"] = 8 + (1 if state["hop_used"] else 0)
+    result["answer"]["tool_calls"] = len(measured.get("queries_run") or [])
     result["answer"]["tokens"] = state.get("tokens") or 0
     result["demo"]["approved"] = []
     result["demo"]["hop"] = state["hop_name"]
@@ -376,12 +460,15 @@ def _step_prose(state: dict, allow_fallback: bool) -> None:
     result["demo"]["language_fallback"] = state.get("language_fallback", False)
     result["demo"]["why_not"] = state.get("why_not") or []
     state["result"] = result
+    _attach_trace(state)
     state["phase"] = "approval"
 
 
 def _step_memory(state: dict) -> None:
     measured = state["measured"]
     result = state["result"]
+    result["answer"]["tool_calls"] = int(result["answer"].get("tool_calls") or 0) + 1
+    state["write_counted"] = True
     mem = write_and_read(
         state["case_id"],
         result["answer"],
@@ -393,9 +480,11 @@ def _step_memory(state: dict) -> None:
     if not mem["matched"]:
         result["answer"]["case"]["written_to_graph"] = False
         result["demo"]["memory_error"] = "read-back mismatch"
+        _attach_trace(state)
         state["phase"] = "memory"
         return
     result["answer"]["case"]["written_to_graph"] = mem["written_to_graph"]
+    _attach_trace(state)
     state["phase"] = "done"
 
 
@@ -442,9 +531,165 @@ def _continue(state: dict, index, allow_fallback: bool, stop_after: str | None) 
     return state["result"]
 
 
+PIPELINE = [
+    ("intake", "Open the alert", "The case row becomes the investigation. No model is asked yet."),
+    ("pack", "Read the card, the device, and prior cases", "Recent charges, the device, and similar closed cases are read as facts. A model does not invent them."),
+    ("pattern", "Name the pattern", "A fixed detector names the pattern when the shape is clear. Otherwise Jev picks the name."),
+    ("hop", "Choose one more graph lookup", "Jev decides if one more lookup would change the case: the shared device, the community, prior cases, the policy text, or none."),
+    ("pass1", "Choose actions before any reply", "The policy rules write the first action list from the evidence. A model does not choose the actions."),
+    ("reply", "Assume the one customer answer", "If a customer check is required, one answer is assumed from the ledger. The language model does not write it."),
+    ("pass2", "Set the final actions", "The rules run again with that assumption. The first action list is kept beside the final one."),
+    ("prose", "Write the summary from the evidence", "Gemini rewrites the evidence into the summary. Jev removes any sentence that adds a fact."),
+    ("approval", "Hold a signature when one is required", "A block, a decline, or a report waits for a person. Automatic actions do not wait."),
+    ("memory", "Write the case and read it back", "The verdict and exposure are saved on TigerGraph and read back. They count only when the two match."),
+]
+
+
+def _probs(raw: dict | None) -> str:
+    if not raw:
+        return ""
+    ranked = sorted(raw, key=raw.get, reverse=True)[:4]
+    return ", ".join(f"{name} {float(raw[name]):.2f}" for name in ranked)
+
+
+def _action_line(items: list | None) -> str:
+    if not items:
+        return "none"
+    return ", ".join(f"{item['action']} ({item['route']})" for item in items)
+
+
+def _outputs(state: dict, done: set[str]) -> dict[str, str]:
+    """Concrete results for steps that have already finished on this case."""
+    found: dict[str, str] = {}
+    case = state.get("case") or {}
+    if "intake" in done and case.get("case_id"):
+        trigger = (case.get("trigger_text") or case.get("trigger_type") or "").strip()
+        found["intake"] = f"{case['case_id']} · {case.get('card_id', '')} · {case.get('customer_id', '')}. {trigger}".strip()
+    measured = state.get("measured") or {}
+    if "pack" in done and measured:
+        flagged = measured.get("flagged")
+        charge = ""
+        if flagged:
+            charge = f" Flagged {flagged[0]} ${float(flagged[2]):.2f} at {flagged[1]}."
+        queries = ", ".join(item["name"] for item in measured.get("queries_run") or [] if item.get("kind") == "pack")
+        source = " on TigerGraph" if measured.get("graph_source") == "tigergraph" else ""
+        similar = measured.get("similar") or []
+        ids = ", ".join(row["case_id"] for row in similar[:4]) or "none"
+        found["pack"] = (
+            f"Queries {queries or 'card window'}{source}.{charge} "
+            f"Device {measured.get('profile') or 'none'}. "
+            f"{measured.get('history_n', 0)} charges on the card, {len(similar)} similar prior cases ({ids})."
+        )
+    if "pattern" in done:
+        gate = state.get("pattern_gate")
+        line = f"{state.get('pattern') or 'none'}. {state.get('desc') or ''}".strip()
+        if gate:
+            if gate.get("fallback"):
+                line += " Jev did not answer. Gate fell back to insufficient."
+            else:
+                line += f" Jev chose {gate.get('label')}. {_probs(gate.get('probabilities'))}."
+        elif state.get("pattern"):
+            line += " The detector locked this name. Jev was not asked."
+        found["pattern"] = line.strip()
+    if "hop" in done:
+        decision = state.get("hop_decision") or {}
+        if decision.get("fallback"):
+            found["hop"] = f"Jev did not answer. Hop stayed {state.get('hop_name') or 'none'}."
+        elif decision:
+            found["hop"] = (
+                f"Jev chose {decision.get('choice')}. Query {state.get('hop_name') or decision.get('query')}. "
+                f"{_probs(decision.get('probabilities'))}."
+            )
+        else:
+            found["hop"] = f"Hop {state.get('hop_name') or 'none'}."
+    if "pass1" in done and state.get("initial") is not None:
+        fired = ", ".join(row["rule"] for row in state.get("register1") or [] if row.get("fired")) or "none"
+        found["pass1"] = f"p {float(state.get('p1') or 0):.2f}. Fired {fired}. Actions: {_action_line(state.get('initial'))}."
+    if "reply" in done:
+        reply = state.get("reply") or {}
+        requests = state.get("evidence_requests") or []
+        if requests:
+            found["reply"] = requests[-1].get("assumed_response") or reply.get("assumption") or "No ask."
+        else:
+            found["reply"] = reply.get("assumption") or "No customer ask."
+    if "pass2" in done and state.get("final") is not None:
+        fired = ", ".join(row["rule"] for row in state.get("register") or [] if row.get("fired")) or "none"
+        found["pass2"] = f"p {float(state.get('p2') or 0):.2f}. Fired {fired}. Final: {_action_line(state.get('final'))}."
+    result = state.get("result") or {}
+    answer = result.get("answer") or {}
+    card = answer.get("case") or {}
+    if "prose" in done and card.get("summary"):
+        tokens = answer.get("tokens") or 0
+        demo = result.get("demo") or {}
+        if demo.get("language_fallback"):
+            model = f"The language model did not return a usable rewrite ({tokens} tokens)."
+        else:
+            model = f"Language model, {tokens} tokens."
+        found["prose"] = f"{card['summary']} {model}"
+        narrative = (answer.get("sar") or {}).get("narrative")
+        if narrative:
+            found["prose"] += f" Report: {narrative}"
+    if "approval" in done and result:
+        waiting = _waiting(result)
+        found["approval"] = f"Waiting for {', '.join(waiting)}." if waiting else "Nothing needs a signature."
+    if "memory" in done and card:
+        matched = (result.get("demo") or {}).get("memory_matched")
+        found["memory"] = (
+            f"{card.get('graph_case_id') or 'not written'}: {card.get('verdict')}, "
+            f"exposure ${float(card.get('exposure_usd') or 0):.2f}. "
+            f"Read-back {'matched' if matched else 'did not match'}."
+        )
+    return found
+
+
+def saved(case_id: str) -> dict | None:
+    """The finished investigation still on disk after the API process restarts."""
+    state = checkpoint.load(case_id)
+    result = (state or {}).get("result")
+    if not result or not result.get("demo"):
+        return None
+    return result
+
+
+def saved_verdicts() -> dict[str, str]:
+    found = {}
+    for case_id, state in checkpoint.load_all().items():
+        result = state.get("result") or {}
+        if not result.get("demo"):
+            continue
+        verdict = ((result.get("answer") or {}).get("case") or {}).get("verdict")
+        if verdict:
+            found[case_id] = verdict
+    return found
+
+
+def progress(case_id: str) -> dict:
+    """The phase currently on disk, with the output of each finished step."""
+    state = checkpoint.load(case_id) or {}
+    phase = state.get("phase") or "intake"
+    names = [name for name, _label, _detail in PIPELINE]
+    index = len(names) if phase == "done" else names.index(phase) if phase in names else 0
+    done = set(names) if phase == "done" else set(names[:index])
+    if phase == "approval" and state.get("result"):
+        done.add("approval")
+    written = _outputs(state, done)
+    steps = []
+    for place, (name, label, _detail) in enumerate(PIPELINE):
+        if phase == "done" or place < index:
+            status = "done"
+        elif place == index:
+            status = "running"
+        else:
+            status = "waiting"
+        steps.append({"id": name, "label": label, "detail": written.get(name, ""), "status": status})
+    return {"phase": phase, "steps": steps}
+
+
 def run(case: dict, index, *, allow_fallback: bool = True, stop_after: str | None = None) -> dict:
     case = open_case(case)
-    return _continue(_fresh(case), index, allow_fallback, stop_after)
+    state = _fresh(case)
+    checkpoint.save(state)
+    return _continue(state, index, allow_fallback, stop_after)
 
 
 def resume(case_id: str, index, *, action: str | None = None, allow_fallback: bool = True) -> dict:

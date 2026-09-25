@@ -1,0 +1,116 @@
+{
+  "case_id": "HHG-005",
+  "case": {
+    "status": "open",
+    "verdict": "uncertain",
+    "fraud_probability": 0.3453,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3523199"
+    ],
+    "first_suspicious_txn_id": "3523199",
+    "connected_card_ids": [],
+    "connected_device_profiles": [
+      "iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768"
+    ],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Flagged 3523199 is $100.07 online on 2016-12-07 21:38:37.",
+        "source": "graph",
+        "ref": "query:card_history",
+        "entity_ids": [
+          "3523199",
+          "C02923-K1"
+        ]
+      },
+      {
+        "claim": "Model risk score on this row is 0.54. The score is a prior, not a finding.",
+        "source": "document",
+        "ref": "case_pack:risk_score",
+        "entity_ids": [
+          "3523199"
+        ]
+      },
+      {
+        "claim": "Purchase came from a device marked New: iOS Device | iOS 9.3.5 | mobile safari 9.0 | 1024x768.",
+        "source": "graph",
+        "ref": "query:device_profile",
+        "entity_ids": [
+          "3523199"
+        ]
+      },
+      {
+        "claim": "Online purchase in a region this card already uses. No proxy and no distinctive shared device.",
+        "source": "graph",
+        "ref": "query:pattern_window",
+        "entity_ids": [
+          "3523199"
+        ]
+      },
+      {
+        "claim": "Prior CC-2400 was confirmed_fraud (account_takeover). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-2400"
+        ]
+      },
+      {
+        "claim": "Prior CC-2717 was confirmed_fraud (account_takeover). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-2717"
+        ]
+      },
+      {
+        "claim": "Prior CC-2857 was confirmed_fraud (account_takeover). It guides the search. It is not proof for this purchase.",
+        "source": "graph",
+        "ref": "query:prior_cases",
+        "entity_ids": [
+          "CC-2857"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-2400",
+      "CC-2717",
+      "CC-2857"
+    ],
+    "summary": "Case HHG-005 on card C02923-K1: $100.07 online at 2016-12-07 21:38:37. Online purchase in a region this card already uses. No proxy and no distinctive shared device. Fraud probability is 0.35. Pattern is none. Final actions: CREATE_CASE.",
+    "written_to_graph": true,
+    "graph_case_id": "EXAM-HHG-005"
+  },
+  "evidence_requests": [],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "final": [
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Open a case: probability is at least 0.30, the customer disputed, or we asked a question"
+      }
+    ],
+    "what_changed": "nothing"
+  },
+  "sar": {
+    "file": false,
+    "reason": "FILE_REPORT is not in the final actions.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0,
+    "activity_dates": []
+  },
+  "stop_reason": "Further lookups would not change the action list. The summary used the evidence claims because the language model did not return a usable rewrite. Drop the device evidence and the action list changes. That family is the point of commitment.",
+  "tool_calls": 10,
+  "tokens": 0,
+  "latency_s": 136.916
+}

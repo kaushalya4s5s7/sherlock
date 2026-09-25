@@ -25,6 +25,9 @@ def _summary_claims(m: dict, pattern: str, desc: str, p: float, actions: list[di
         sentences.append({"text": assumed, "ref": "reply:assumption", "claim": reply["assumption"]})
     tail = f"Final actions: {names}."
     sentences.append({"text": tail, "ref": "policy:final_actions", "claim": tail})
+    policy = (m.get("policy_context") or "").strip()
+    if policy:
+        sentences.append({"text": policy, "ref": "query:policy_passage", "claim": policy})
     return sentences
 
 
@@ -50,10 +53,27 @@ def _sar_claims(m: dict, desc: str, exposure: float) -> list[dict]:
     ]
 
 
-def _parse(raw: str, claims: list[dict]) -> list[dict] | None:
+def _json_object(raw: str) -> dict | None:
+    text = raw.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[-1]
+        if text.endswith("```"):
+            text = text[: -3]
+        text = text.strip()
+    start = text.find("{")
+    end = text.rfind("}")
+    if start < 0 or end < start:
+        return None
     try:
-        payload = json.loads(raw)
+        payload = json.loads(text[start : end + 1])
     except json.JSONDecodeError:
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def _parse(raw: str, claims: list[dict]) -> list[dict] | None:
+    payload = _json_object(raw)
+    if payload is None:
         return None
     rows = payload.get("sentences") if isinstance(payload, dict) else None
     if not isinstance(rows, list):
