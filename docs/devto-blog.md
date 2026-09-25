@@ -26,96 +26,19 @@ One case. One direction. Each stage has one owner.
 
 {% mermaid %}
 flowchart TB
-  subgraph intake [Intake]
+  subgraph row1 [Gather]
     direction LR
-    dispute[Customer dispute] --> open[One case row]
-    score[Bank score] --> open
-    analyst[Analyst request] --> open
+    intake["Intake<br/>Dispute, bank score, or analyst. One case row."] --> graph["Graph<br/>Official MCP. Same pack every case: charge, device, region, older cases, exposure."]
+    graph --> belief["Belief<br/>Prior is the bank score. Each fact adds a log-odds weight. Chance is the sigmoid."]
+    belief --> pattern["Pattern<br/>Fixed checks lock the name. If not, Jev names it. Top two too close: name stays blank."]
   end
-
-  subgraph graph [Graph engine]
+  subgraph row2 [Decide]
     direction LR
-    mcp[Official MCP] --> hist[Charge and card history]
-    hist --> device[Device, neighbors, identity]
-    device --> place[Region and monthly amount]
-    place --> older[Older cases and exposure]
+    hop["Jev hop<br/>One more query, or none: other cards, shared devices, older cases, or the policy note."] --> policy["Policy<br/>R1 to R10, pass 1. One assumed reply. Pass 2 writes the final actions."]
+    policy --> verdict["Verdict<br/>Real purchase, unnamed shape, or chance high enough. Otherwise uncertain. Card stays open."]
+    verdict --> close["Close<br/>Name the fact it rests on. Jev keeps a sentence that quotes a fact. Sign a block, decline, or report. Write ExamCase and read it back."]
   end
-
-  subgraph belief [Belief engine]
-    direction LR
-    prior[Prior is the bank score] --> weights[Each fact adds a log-odds weight] --> chance[Sigmoid chance]
-  end
-
-  subgraph pattern [Pattern engine]
-    direction LR
-    detect[Five named shapes plus unnamed] --> locked{Detector locked a name?}
-    locked -->|Yes| kept[Keep it. Jev is not asked]
-    locked -->|No| pgate[Jev pattern gate]
-    pgate --> split{Top two within 0.1?}
-    split -->|Yes| blank[Name stays blank]
-    split -->|No| picked[Take the leading name]
-  end
-
-  subgraph hop [Control engine · Jev hop]
-    direction LR
-    choose{One more query?}
-    choose -->|device| cards[Other cards on this device]
-    choose -->|community| walk[Shared-device walk]
-    choose -->|memory| again[Older cases]
-    choose -->|policy| vec[Closest policy note]
-    choose -->|none| none[Stop walking]
-  end
-
-  subgraph policy [Policy engine]
-    direction LR
-    pass1[Pass 1 · R1 to R10 · no reply yet] --> ask{Still need the customer?}
-    ask -->|Yes| reply[Reply engine assumes one answer]
-    reply --> pass2[Pass 2 · final actions]
-    ask -->|No| pass2
-  end
-
-  subgraph verdict [Answer]
-    direction LR
-    v1{Closed as a real purchase?} -->|Yes| legit[Legitimate]
-    v1 -->|No| v2{Unnamed shape?}
-    v2 -->|Yes| fraud[Fraud]
-    v2 -->|No| v3{Chance high enough?}
-    v3 -->|Yes| fraud
-    v3 -->|No| unsure[Uncertain · card stays open]
-  end
-
-  subgraph close [Stop · language · memory]
-    direction LR
-    commit[Point of commitment] --> draft[Language engine writes from the claims]
-    draft --> sentence{Sentence quotes a fact?}
-    sentence -->|Yes| hold[Jev keeps it]
-    sentence -->|No| swap[Replace it with the claim]
-    hold --> route{Block, decline, or report?}
-    swap --> route
-    route -->|Yes| person[Wait for a signature]
-    route -->|No| auto[Proceed on its own]
-    person --> save[Upsert ExamCase]
-    auto --> save
-    save --> back{Read-back matches?}
-    back -->|Yes| stored[Next case can retrieve it]
-    back -->|No| refused[Case is not submitted]
-  end
-
-  open --> mcp
-  older --> prior
-  chance --> detect
-  kept --> choose
-  blank --> choose
-  picked --> choose
-  cards --> pass1
-  walk --> pass1
-  again --> pass1
-  vec --> pass1
-  none --> pass1
-  pass2 --> v1
-  legit --> commit
-  fraud --> commit
-  unsure --> commit
+  pattern --> hop
 {% endmermaid %}
 
 | Plane | Who owns it |
@@ -139,61 +62,9 @@ The graph is `HHGOA`. The agent never writes GSQL at runtime. Official TigerGrap
 
 {% mermaid %}
 flowchart LR
-  subgraph door [Door]
-    direction TB
-    mcp[Official MCP]
-    tool[run_installed_query by name]
-    mcp --> tool
-  end
-
-  subgraph schema [Graph HHGOA]
-    direction TB
-    txn[Transaction]
-    card[BankCard]
-    phone[DeviceProfile]
-    closed[ClosedCase]
-    ident[IdentityFlag]
-    note[PolicyNote with vec]
-    exam[ExamCase]
-  end
-
-  subgraph links [Edges]
-    direction TB
-    e1[TXN_ON_CARD]
-    e2[FROM_DEVICE]
-    e3[CASE_ON_CARD]
-  end
-
-  subgraph pack [Installed pack · every case]
-    direction TB
-    q1[txn_and_card · card_window]
-    q2[device_profile · device_neighbors · identity_flag]
-    q3[region_history · recurring_match]
-    q4[prior_cases · exposure_episode]
-  end
-
-  subgraph second [One hop · Jev picks]
-    direction TB
-    h1[component_cards]
-    h2[card_community]
-    h3[prior_cases]
-    h4[policy_vector_search then policy_passage]
-    h5[none]
-  end
-
-  subgraph memory [Write and read back]
-    direction TB
-    w1[ExamCase · verdict, pattern, exposure]
-    w2[ON_CARD · EXAM_OTHER · EXAM_TXN · EXAM_DEVICE]
-    w3[GET the vertex · same verdict and money]
-    w1 --> w2 --> w3
-  end
-
-  tool --> q1
-  txn --> e1
-  e1 --> q1
-  note --> h4
-  exam --> w1
+  door["Official MCP<br/>run_installed_query by name"] --> pack["Installed pack, every case<br/>txn_and_card, card_window, device_profile, device_neighbors, identity_flag, region_history, recurring_match, prior_cases, exposure_episode"]
+  pack --> hop["One hop, Jev picks<br/>component_cards, card_community, prior_cases, policy_vector_search, or none"]
+  hop --> save["ExamCase write<br/>Verdict, pattern, exposure. Edges ON_CARD, EXAM_OTHER, EXAM_TXN, EXAM_DEVICE. Read-back must match."]
 {% endmermaid %}
 
 Every case runs the same pack: the flagged charge, the card history, the device and who else used it, the regions, a repeating amount, older cases, and the money in the episode. The pack is invariant so a model cannot skip a check.
